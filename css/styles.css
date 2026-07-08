@@ -279,3 +279,99 @@
       flex-direction:column; padding:18px 28px; border-bottom:1px solid var(--line); gap:16px;
     }
   }
+
+  /* ================= tutor page ================= */
+  .tutor-hero{ padding:64px 0 56px; }
+  .tutor-hero-grid{ display:grid; grid-template-columns:200px 1fr; gap:44px; align-items:center; }
+  .tutor-photo{
+    width:200px; height:200px; border-radius:50%;
+    background:radial-gradient(circle at 32% 28%, var(--brass-lt), var(--teal) 78%);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Source Serif 4', serif; font-size:56px; font-weight:600; color:var(--ink);
+    box-shadow:0 20px 40px -18px rgba(22,40,61,0.4);
+    flex-shrink:0;
+  }
+  .tutor-hero h1{ font-size:clamp(30px,3.8vw,44px); margin:10px 0 14px; }
+  .tutor-hero .lede{ font-size:17.5px; color:var(--ink-soft); max-width:56ch; }
+  .tutor-credentials{ display:flex; flex-wrap:wrap; gap:10px 22px; margin-top:20px; }
+  .tutor-credentials li{
+    list-style:none; font-size:13.5px; font-family:'IBM Plex Mono',monospace; color:var(--ink-soft);
+  }
+  .tutor-credentials li::before{ content:"— "; color:var(--brass); }
+
+  .tutor-bio p{ font-size:16.5px; color:var(--ink-soft); max-width:74ch; margin:0 0 18px; }
+  .tutor-bio p:last-child{ margin-bottom:0; }
+
+  .batch-tag{
+    display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:11.5px;
+    letter-spacing:.08em; text-transform:uppercase; color:var(--teal); font-weight:600;
+    background:rgba(62,124,107,0.1); border:1px solid rgba(62,124,107,0.28);
+    padding:5px 12px; border-radius:999px; margin-bottom:18px;
+  }
+  .story-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:22px; }
+  .story-card{
+    background:var(--paper-lt); border:1px solid var(--line); border-radius:6px; padding:26px;
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .story-head{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .story-head .name{ font-family:'Source Serif 4',serif; font-size:17px; font-weight:600; }
+  .story-head .grade{ font-size:12.5px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace; }
+  .story-stat{
+    font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; color:var(--ink);
+    background:var(--brass-lt); border-radius:4px; padding:4px 9px; white-space:nowrap;
+  }
+  .story-card p{ font-family:'Source Serif 4',serif; font-size:15.5px; line-height:1.5; color:var(--ink); margin:0; }
+  .story-foot{ font-size:12px; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace; border-top:1px solid var(--line); padding-top:12px; }
+
+  @media (max-width:720px){
+    .tutor-hero-grid{ grid-template-columns:1fr; text-align:left; }
+    .tutor-photo{ width:120px; height:120px; font-size:36px; }
+    .story-grid{ grid-template-columns:1fr; }
+  }
+
+  /* ================= sample practice-test form ================= */
+  .gform-shell{ background:#F4F1EC; min-height:100vh; padding:40px 0 80px; }
+  .gform-wrap{ max-width:700px; margin:0 auto; padding:0 20px; }
+  .gform-banner{
+    background:var(--ink); color:var(--paper-lt); font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px; padding:10px 18px; border-radius:6px; margin-bottom:20px;
+    display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .gform-banner a{ color:var(--brass-lt); text-decoration:underline; }
+  .gform-card{
+    background:#fff; border:1px solid #dadce0; border-radius:8px; margin-bottom:18px; overflow:hidden;
+  }
+  .gform-card.gform-title{ border-top:10px solid var(--teal); }
+  .gform-title-inner{ padding:28px 32px 24px; }
+  .gform-title-inner h1{
+    font-family:'Source Serif 4',serif; font-size:28px; font-weight:600; color:#202124; margin:0 0 8px;
+  }
+  .gform-title-inner p{ font-size:14.5px; color:#5f6368; margin:0 0 4px; line-height:1.5; }
+  .gform-title-inner .gform-meta{ font-size:12.5px; color:#5f6368; margin-top:14px; }
+  .gform-q{ padding:22px 32px; }
+  .gform-q .qtext{ font-size:15px; color:#202124; font-weight:500; margin-bottom:14px; }
+  .gform-q .qtext .req{ color:#d93025; margin-left:2px; }
+  .gform-option{ display:flex; align-items:center; gap:12px; padding:8px 0; font-size:14px; color:#3c4043; }
+  .gform-option input{ width:17px; height:17px; accent-color: var(--teal); }
+  .gform-textinput{
+    width:100%; max-width:340px; border:none; border-bottom:1px solid #dadce0; padding:6px 2px;
+    font-family:'IBM Plex Sans',sans-serif; font-size:14.5px; background:transparent;
+  }
+  .gform-textinput:focus{ outline:none; border-bottom:2px solid var(--teal); }
+  .gform-select{
+    font-family:'IBM Plex Sans',sans-serif; font-size:14.5px; padding:8px 10px; border:1px solid #dadce0;
+    border-radius:4px; background:#fff; color:#3c4043;
+  }
+  .gform-actions{ display:flex; justify-content:space-between; align-items:center; padding:6px 4px 40px; }
+  .gform-submit{
+    background:var(--teal); color:#fff; border:none; border-radius:4px; padding:10px 26px;
+    font-family:'IBM Plex Sans',sans-serif; font-weight:600; font-size:14.5px; cursor:pointer;
+  }
+  .gform-submit:hover{ background:#346a5b; }
+  .gform-clear{ font-size:13.5px; color:#5f6368; background:none; border:none; cursor:pointer; text-decoration:underline; }
+  .gform-note{ font-size:12.5px; color:#5f6368; text-align:center; margin-top:14px; }
+  .gform-thanks{
+    display:none; background:#fff; border:1px solid #dadce0; border-radius:8px; padding:36px 32px; text-align:center;
+  }
+  .gform-thanks h2{ font-family:'Source Serif 4',serif; font-size:22px; margin-bottom:10px; }
+  .gform-thanks p{ font-size:14.5px; color:#5f6368; margin:0 0 6px; }

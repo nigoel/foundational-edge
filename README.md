@@ -7,7 +7,9 @@ so it can be hosted for free and edited by anyone comfortable with basic HTML.
 
 ```
 foundational-edge/
-├── index.html        All page content and structure
+├── index.html          Landing page content and structure
+├── tutor.html          Head tutor bio + current batch success stories
+├── practice-test.html  Sample practice-test form (placeholder for the real quiz)
 ├── css/
 │   └── styles.css    All styling (colors, type, layout, responsive rules)
 ├── js/
@@ -20,8 +22,8 @@ foundational-edge/
 
 | What | Where | Find |
 |---|---|---|
-| WhatsApp number | `index.html` | search `wa.me/910000000000` — replace with your real WhatsApp Business number, no `+` or spaces |
-| Contact email | `index.html` | search `hello@foundationaledge.com` (appears twice) |
+| WhatsApp number | `index.html` | search `wa.me/919810947427` — replace with your real WhatsApp Business number, no `+` or spaces |
+| Contact email | `index.html`, `tutor.html` | search `swatig8591@gmail.com` |
 | India / international prices | `index.html` | inside `<section id="pricing">`, each `<div class="amount" data-india="..." data-intl="...">` |
 | Sample rank card (Ananya R.) | `index.html` | inside `<div class="rankcard">` in the hero — replace with a real anonymized example once you have one, or keep as an illustrative sample |
 | Testimonials | `index.html` | inside `<section id="stories">` — replace placeholders with real parent quotes once collected |
@@ -59,8 +61,12 @@ Point its DNS to your Cloudflare Pages / Netlify site (a few clicks in their das
 
 ## Known placeholder / not-yet-wired items
 
-- The "free skill check" buttons currently link to WhatsApp/email — there's no actual quiz yet.
-  For Phase 1, the simplest fix is linking them to a Google Form or Typeform with your real questions.
+- The "free skill check" buttons now link to `practice-test.html`, a static page styled like a
+  Google Form with sample random questions (numeracy, logical reasoning, reading) for Grades 3–8.
+  It does not submit anywhere yet — swap it for a real Google Form / Typeform link, or wire up
+  the markup in `practice-test.html` to your real question bank, before launch.
 - No form on this page submits anywhere (there is no signup form yet, by design — WhatsApp/email
   are the current capture mechanism). If you add an email capture form later, Formspree or Tally
   are free, no-backend-needed options that work well with a static site like this.
+- `tutor.html` success stories and student names are illustrative placeholders — replace with real,
+  consented testimonials from the current batch before launch.
