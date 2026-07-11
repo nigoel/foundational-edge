@@ -459,3 +459,23 @@
   }
   .gform-thanks h2{ font-size:23px; margin-bottom:12px; }
   .gform-thanks p{ font-size:14.5px; color:var(--ink-soft); margin:0 0 6px; }
+
+  /* ---------- intake page: mode toggle, lookup, registration id ---------- */
+  .mode-toggle{
+    display:inline-flex; border:1px solid var(--line); border-radius:999px; padding:4px; margin-bottom:20px; background:var(--paper-lt);
+  }
+  .mode-tab{
+    border:none; background:none; padding:9px 20px; border-radius:999px; font-family:'IBM Plex Sans'; font-weight:600;
+    font-size:14px; cursor:pointer; color:var(--ink-soft); white-space:nowrap;
+  }
+  .mode-tab.active{ background:var(--ink); color:var(--paper-lt); }
+  .gform-or{
+    text-align:center; font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:.06em;
+    text-transform:uppercase; color:var(--ink-soft); margin:4px 0 16px;
+  }
+  .gform-error{ font-size:13px; color:#c0392b; text-align:center; margin-top:14px; }
+  .regid-box{
+    display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:17px; font-weight:600;
+    letter-spacing:.02em; color:var(--ink); background:var(--brass-lt); border-radius:6px;
+    padding:10px 20px; margin:8px 0 6px; max-width:100%; word-break:break-all;
+  }
