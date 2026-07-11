@@ -12,7 +12,16 @@
 -- Safe to run even if `registrations` already has rows; it only touches
 -- policies and adds a function.
 
--- 1. Remove the wide-open read policy.
+-- 0. Make sure INSERT actually works. The original design notes described a
+--    "public insert" policy as already created, but on the live project no
+--    such policy exists (new registrations fail with 42501 "new row violates
+--    row-level security policy"). Create it here so this script is fully
+--    self-contained regardless of what was or wasn't actually run before.
+drop policy if exists "public insert" on registrations;
+create policy "public insert" on registrations for insert to anon with check (true);
+
+-- 1. Remove the wide-open read policy (drop only if it exists — it may
+--    never have been created either; harmless no-op either way).
 drop policy if exists "public select" on registrations;
 
 -- 1b. The registration form upserts (INSERT ... ON CONFLICT (id) DO UPDATE)
