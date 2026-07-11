@@ -10,13 +10,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body data-region="india">
 
 <header>
   <nav class="nav" id="nav">
     <a href="#top" class="logo">Foundational<span class="dot">·</span>Edge</a>
     <ul class="nav-links">
       <li><a href="#how">How it works</a></li>
+      <li><a href="#skills">What we test</a></li>
       <li><a href="#included">What's included</a></li>
       <li><a href="#pricing">Pricing</a></li>
       <li><a href="#stories">Families</a></li>
@@ -24,7 +25,7 @@
     </ul>
     <div class="nav-cta">
       <a href="#pricing" class="btn btn-ghost">See pricing</a>
-      <a href="practice-test.html" class="btn btn-primary">Free skill check</a>
+      <a href="#assess" class="btn btn-primary">Free skill check</a>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
     </div>
   </nav>
@@ -36,32 +37,55 @@
   <section class="hero">
     <div class="wrap hero-grid">
       <div>
-        <span class="eyebrow">Foundational skills · Grades 3–8</span>
+        <span class="eyebrow">Grades 3–8 · Foundational to Advanced</span>
         <h1>Know exactly where your child stands — <em>wherever</em> in the world you live.</h1>
         <p class="lede">A monthly ranked skill check, a personal improvement plan, and ongoing coaching — built on one tutor's proven 1:1 method, for families in India and the diaspora.</p>
         <div class="hero-actions">
-          <a href="practice-test.html" class="btn btn-gold">Get a free 15-question skill check</a>
+          <a href="#assess" class="btn btn-gold">Get your child's free skill check</a>
           <a href="#how" class="btn btn-ghost">See how it works</a>
+        </div>
+        <div class="region-toggle region-toggle-inline reveal" role="tablist" aria-label="Region">
+          <button class="region-tab active" data-region-tab="india" onclick="setRegion('india')">India</button>
+          <button class="region-tab" data-region-tab="intl" onclick="setRegion('intl')">Outside India</button>
         </div>
         <div class="hero-note">NO APP TO DOWNLOAD · RESULTS OVER WHATSAPP · 5-MINUTE SIGN-UP</div>
       </div>
 
       <div class="rankcard reveal">
-        <div class="rankcard-head">
+        <div class="rankcard-head" data-region-only="india">
           <div>
             <span class="eyebrow">Foundational Edge · Monthly Report</span>
-            <div class="rankcard-name">Ananya R. · Grade 3</div>
+            <div class="rankcard-name">Ananya R. · Grade 6</div>
+            <div class="rankcard-tier">Intermediate Tier · Grades 5–6</div>
           </div>
           <div class="seal">TOP<br>8<span class="mono">%ILE</span></div>
         </div>
-        <div class="rankcard-stat">
-          <span class="num">92<span style="font-size:20px;">nd</span></span>
-          <span class="lbl">percentile, India + international pool, June cohort</span>
+        <div class="rankcard-head" data-region-only="intl">
+          <div>
+            <span class="eyebrow">Foundational Edge · Monthly Report</span>
+            <div class="rankcard-name">Kabir M. · Grade 6</div>
+            <div class="rankcard-tier">Intermediate Tier · Grades 5–6</div>
+          </div>
+          <div class="seal">TOP<br>5<span class="mono">%ILE</span></div>
         </div>
-        <div class="rankcard-rows">
-          <div class="rankcard-row"><span class="name">Numeracy</span><div class="bar"><span style="width:88%"></span></div></div>
-          <div class="rankcard-row"><span class="name">Logical reasoning</span><div class="bar"><span style="width:81%"></span></div></div>
-          <div class="rankcard-row"><span class="name">Reading comprehension</span><div class="bar"><span style="width:95%"></span></div></div>
+        <div class="rankcard-stat" data-region-only="india">
+          <span class="num">92<span style="font-size:20px;">nd</span></span>
+          <span class="lbl">percentile, India cohort, June check-in</span>
+        </div>
+        <div class="rankcard-stat" data-region-only="intl">
+          <span class="num">95<span style="font-size:20px;">th</span></span>
+          <span class="lbl">percentile, India + diaspora pool, June check-in</span>
+        </div>
+        <div class="rankcard-rows" data-region-only="india">
+          <div class="rankcard-row"><span class="name">Quantitative Reasoning</span><div class="bar"><span style="width:88%"></span></div></div>
+          <div class="rankcard-row"><span class="name">Verbal Reasoning</span><div class="bar"><span style="width:81%"></span></div></div>
+          <div class="rankcard-row"><span class="name">Logical Reasoning</span><div class="bar"><span style="width:90%"></span></div></div>
+          <div class="rankcard-row"><span class="name">Scientific Reasoning</span><div class="bar"><span style="width:95%"></span></div></div>
+        </div>
+        <div class="rankcard-rows" data-region-only="intl">
+          <div class="rankcard-row"><span class="name">Quantitative Reasoning</span><div class="bar"><span style="width:91%"></span></div></div>
+          <div class="rankcard-row"><span class="name">Verbal Reasoning</span><div class="bar"><span style="width:85%"></span></div></div>
+          <div class="rankcard-row"><span class="name">Logical Reasoning</span><div class="bar"><span style="width:93%"></span></div></div>
         </div>
         <div class="rankcard-foot">
           <span>NEXT RANKED CHECK: 1 AUG</span>
@@ -73,7 +97,7 @@
 
   <div class="strip">
     <div class="wrap">
-      <span><strong>Built for:</strong> Indian-origin families in the US, UK, UAE, Singapore &amp; Australia — and families in India who want objective proof of foundational skill, not just school marks.</span>
+      <span><strong>Built for:</strong> Indian-origin families in the US, UK, UAE, Singapore &amp; Australia — and families in India who want objective proof of readiness for competitive assessments, not just school marks.</span>
     </div>
   </div>
 
@@ -91,25 +115,59 @@
       <div class="section-head reveal">
         <span class="eyebrow">How it works</span>
         <h2>Three steps, in order — each one earns the next.</h2>
-        <p>This isn't a quiz app. It's a sequence: we find the gap, explain it clearly, then close it together, every month.</p>
+        <p>This isn't a quiz app. It's a sequence: we find the gap, explain it clearly, then close it together, every month — and the difficulty adjusts automatically, so a Grade 3 check looks nothing like a Grade 8 one.</p>
       </div>
       <div class="ledger">
         <div class="ledger-row reveal">
           <span class="idx mono">01</span>
           <div><span class="stage-tag">Free</span><h3>Take the skill check</h3></div>
-          <p>A 15-question, curriculum-agnostic test covering numeracy, logical reasoning, and reading — comparable whether your child studies CBSE, IB, or a national curriculum abroad. You get a score in minutes.</p>
+          <p>A short, curriculum-agnostic check calibrated to your child's grade — comparable whether they study CBSE, IB, or a national curriculum abroad. You get a score in minutes.</p>
         </div>
         <div class="ledger-row reveal">
           <span class="idx mono">02</span>
           <div><span class="stage-tag">One-time</span><h3>Get the diagnostic report</h3></div>
-          <p>A specific breakdown of where the gaps are, a 4-week improvement plan, and an optional 15-minute call with a coach trained directly by our head tutor.</p>
+          <p>A specific breakdown of where the gaps are, by skill area, a 4-week improvement plan, and an optional 15-minute call with a coach trained directly by our head tutor.</p>
         </div>
         <div class="ledger-row reveal">
           <span class="idx mono">03</span>
           <div><span class="stage-tag">Monthly</span><h3>Track progress with a ranked check-in</h3></div>
-          <p>Weekly practice over WhatsApp, doubt support when your child gets stuck, and a monthly ranked assessment so you can see the movement — not guess at it.</p>
+          <p>Weekly practice over WhatsApp, doubt support when your child gets stuck, and a monthly ranked assessment — at the same difficulty tier as your child's grade — so you can see the movement, not guess at it.</p>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- WHAT WE TEST -->
+  <section id="skills">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">What we test</span>
+        <h2>Four skill areas, calibrated to your child's grade.</h2>
+        <p>Every check adapts across three difficulty tiers from Grade 3 through Grade 8 — a Foundation-level question looks nothing like an Advanced one.</p>
+      </div>
+      <div class="skills-grid reveal">
+        <div class="skill-card">
+          <span class="mark">◆</span>
+          <h3>Quantitative Reasoning</h3>
+          <p>Numeracy, arithmetic, pre-algebra, geometry and number theory — building toward competition-style problem solving.</p>
+        </div>
+        <div class="skill-card">
+          <span class="mark">◆</span>
+          <h3>Verbal Reasoning</h3>
+          <p>Vocabulary, grammar, and reading comprehension, building to critical reading and verbal analogies at the advanced level.</p>
+        </div>
+        <div class="skill-card">
+          <span class="mark">◆</span>
+          <h3>Logical Reasoning</h3>
+          <p>Pattern recognition, classification and spatial reasoning, building to analytical deduction.</p>
+        </div>
+        <div class="skill-card" data-region-only="india">
+          <span class="mark">◆</span>
+          <h3>Scientific Reasoning</h3>
+          <p>Life, physical and applied science reasoning, aligned to school-board science curricula.</p>
+        </div>
+      </div>
+      <p class="skills-note">Question style and difficulty progression are informed by the leading national and international assessment formats used at each grade level.</p>
     </div>
   </section>
 
@@ -134,7 +192,7 @@
         <div class="feature-card">
           <span class="mark">◆ MONTHLY</span>
           <h3>Ranked skill check</h3>
-          <p>Same format as the free check, scored against the growing India + diaspora pool.</p>
+          <p>Same format as the free check, at your child's grade tier, scored against the growing India + diaspora pool.</p>
         </div>
         <div class="feature-card">
           <span class="mark">◆ QUARTERLY</span>
@@ -154,9 +212,9 @@
         <p>One program, tiered so a family in Bengaluru and a family in Dallas both pay a fair price for it.</p>
       </div>
 
-      <div class="pricing-toggle reveal" role="tablist" aria-label="Pricing region">
-        <button class="active" id="tab-india" onclick="setRegion('india')">India (₹)</button>
-        <button id="tab-intl" onclick="setRegion('intl')">Outside India ($)</button>
+      <div class="region-toggle reveal" role="tablist" aria-label="Pricing region">
+        <button class="region-tab active" data-region-tab="india" onclick="setRegion('india')">India (₹)</button>
+        <button class="region-tab" data-region-tab="intl" onclick="setRegion('intl')">Outside India ($)</button>
       </div>
 
       <div class="price-grid reveal">
@@ -165,11 +223,11 @@
           <div class="amount">Free</div>
           <div class="per">one-time · no card required</div>
           <ul>
-            <li>15-question assessment</li>
+            <li>Quick check across key skill areas</li>
             <li>Instant basic score</li>
             <li>No rank shown</li>
           </ul>
-          <a href="practice-test.html" class="btn btn-ghost">Start free check</a>
+          <a href="#assess" class="btn btn-ghost">Start free check</a>
         </div>
         <div class="price-card featured">
           <h3>Diagnostic report</h3>
@@ -193,7 +251,7 @@
             <li>Monthly ranked skill check</li>
             <li>Quarterly certificate &amp; progress call</li>
           </ul>
-          <a href="practice-test.html" class="btn btn-ghost">Start with the free check</a>
+          <a href="#assess" class="btn btn-ghost">Start with the free check</a>
         </div>
       </div>
     </div>
@@ -210,7 +268,7 @@
       <div class="testi-grid reveal">
         <div class="testi-card">
           <p>"The monthly rank is what keeps my son motivated — he actually asks when the next one is."</p>
-          <div class="testi-foot"><span class="who">Parent of a Grade 6 student</span><span class="where">Dubai, UAE</span></div>
+          <div class="testi-foot"><span class="who">Parent of a Grade 7 student</span><span class="where">Dubai, UAE</span></div>
         </div>
         <div class="testi-card">
           <p>"We finally had a real answer to 'is she behind or not' instead of guessing from a report card."</p>
@@ -230,8 +288,7 @@
       <h2>Start with the free skill check — takes about 15 minutes.</h2>
       <p>No payment details needed. You'll get your child's basic score right away, and can decide from there.</p>
       <div class="cta-actions">
-        <a href="practice-test.html" class="btn btn-primary">Take the practice test →</a>
-        <a href="https://wa.me/919810947427?text=Hi%2C%20I%27d%20like%20to%20start%20the%20free%20Foundational%20Edge%20skill%20check" class="btn btn-ghost">Message us on WhatsApp</a>
+        <a href="https://wa.me/919810947427?text=Hi%2C%20I%27d%20like%20to%20start%20the%20free%20Foundational%20Edge%20skill%20check" class="btn btn-primary">Start on WhatsApp →</a>
         <a href="mailto:swatig8591@gmail.com" class="btn btn-ghost">Email us instead</a>
       </div>
     </div>
@@ -243,7 +300,7 @@
   <div class="wrap foot-grid">
     <div>
       <a href="#top" class="logo">Foundational<span class="dot">·</span>Edge</a>
-      <p class="foot-note">A foundational-skills assessment and coaching program for children in Grades 3–8, for families in India and the diaspora. Not affiliated with any school board.</p>
+      <p class="foot-note">A skills assessment and coaching program for children in Grades 3–8, for families in India and the diaspora. Not affiliated with any school board or exam body.</p>
     </div>
     <ul class="foot-links">
       <li><a href="#how">How it works</a></li>
