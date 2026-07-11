@@ -4,10 +4,12 @@
   navToggle.addEventListener('click', () => nav.classList.toggle('open'));
   nav.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
 
-  // pricing region toggle
+  // region toggle — drives pricing, rank card, and "what we test" visibility everywhere on the page
   function setRegion(region){
-    document.getElementById('tab-india').classList.toggle('active', region === 'india');
-    document.getElementById('tab-intl').classList.toggle('active', region === 'intl');
+    document.body.dataset.region = region;
+    document.querySelectorAll('.region-tab').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.regionTab === region);
+    });
     document.querySelectorAll('.amount[data-india]').forEach(el => {
       el.textContent = region === 'india' ? el.dataset.india : el.dataset.intl;
     });
