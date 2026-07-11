@@ -10,7 +10,7 @@
     document.querySelectorAll('.region-tab').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.regionTab === region);
     });
-    document.querySelectorAll('.amount[data-india]').forEach(el => {
+    document.querySelectorAll('.amount[data-india], .amount-strike[data-india]').forEach(el => {
       el.textContent = region === 'india' ? el.dataset.india : el.dataset.intl;
     });
   }
