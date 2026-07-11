@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Start Your Child's Free Skill Check — Foundational Edge</title>
-<meta name="description" content="Tell us about your child and we'll route you to the right free skill check for their grade level.">
+<meta name="description" content="Register your child for the free skill check, or look up an existing registration.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -20,14 +20,20 @@
       <a href="index.html#top">← Back to Foundational Edge</a>
     </div>
 
-    <form id="skillCheckForm">
-      <div class="gform-card gform-title">
-        <div class="gform-title-inner">
-          <h1>Start Your Child's Free Skill Check</h1>
-          <p>Tell us a bit about your child, and we'll take you straight to the right skill check for their grade level.</p>
-        </div>
+    <div class="gform-card gform-title">
+      <div class="gform-title-inner">
+        <h1>Start Your Child's Free Skill Check</h1>
+        <p>New here? Register your child below. Already registered? Look up your skill check link.</p>
       </div>
+    </div>
 
+    <div class="mode-toggle" role="tablist" aria-label="Registration mode">
+      <button class="mode-tab active" id="tab-new" onclick="setMode('new')">New registration</button>
+      <button class="mode-tab" id="tab-returning" onclick="setMode('returning')">Returning student</button>
+    </div>
+
+    <!-- ============ NEW REGISTRATION ============ -->
+    <form id="newForm">
       <div class="gform-card">
         <div class="gform-q">
           <div class="qtext">Child's name<span class="req">*</span></div>
@@ -89,22 +95,56 @@
 
       <div class="gform-card">
         <div class="gform-q">
-          <div class="qtext">Parent's WhatsApp number (for results)<span class="req">*</span></div>
+          <div class="qtext">Parent's WhatsApp number<span class="req">*</span></div>
           <input class="gform-textinput" id="whatsapp" type="tel" placeholder="+91 98765 43210" required>
         </div>
       </div>
 
       <div class="gform-actions">
-        <button type="submit" class="gform-submit">Continue to skill check →</button>
+        <button type="submit" class="gform-submit" id="newSubmitBtn">Register &amp; continue →</button>
         <button type="reset" class="gform-clear">Clear form</button>
       </div>
-      <p class="gform-note">We'll take you to the skill check matched to your child's grade tier right after this.</p>
+      <p class="gform-note">You'll get a registration ID and a link to the skill check matched to your child's grade.</p>
+      <p class="gform-error" id="newError" style="display:none;">Something went wrong saving your registration. Please try again, or message Swati on WhatsApp.</p>
     </form>
 
-    <div class="gform-thanks" id="gformThanks">
-      <h2>Thanks — taking you to the skill check now…</h2>
-      <p>If you're not redirected automatically, use the link below. Prefer WhatsApp?</p>
-      <p><a id="continueLink" href="#" class="btn btn-primary" style="margin-top:6px;">Go to the skill check →</a></p>
+    <!-- ============ RETURNING STUDENT ============ -->
+    <form id="returningForm" style="display:none;">
+      <div class="gform-card">
+        <div class="gform-q">
+          <div class="qtext">Registration ID</div>
+          <input class="gform-textinput" id="lookupRegId" type="text" placeholder="e.g. RiyaSharma@919876543210" style="max-width:320px;">
+        </div>
+      </div>
+
+      <div class="gform-or">— or, enter the details you registered with —</div>
+
+      <div class="gform-card">
+        <div class="gform-q">
+          <div class="qtext">Child's name</div>
+          <input class="gform-textinput" id="lookupChildName" type="text" placeholder="Your answer">
+        </div>
+      </div>
+
+      <div class="gform-card">
+        <div class="gform-q">
+          <div class="qtext">Parent's WhatsApp number</div>
+          <input class="gform-textinput" id="lookupWhatsapp" type="tel" placeholder="+91 98765 43210">
+        </div>
+      </div>
+
+      <div class="gform-actions">
+        <button type="submit" class="gform-submit" id="returningSubmitBtn">Find my skill check →</button>
+      </div>
+      <p class="gform-error" id="lookupError" style="display:none;">We couldn't find a registration matching that. Double-check the details, or register as new above.</p>
+    </form>
+
+    <!-- ============ RESULT ============ -->
+    <div class="gform-thanks" id="resultPanel">
+      <h2 id="resultHeading">You're registered!</h2>
+      <p id="resultSub">Here's your registration ID — save it to look this up again later.</p>
+      <div class="regid-box" id="regIdBox">RiyaSharma@919876543210</div>
+      <p><a id="continueLink" href="#" class="btn btn-primary" style="margin-top:6px;">Go to your skill check →</a></p>
       <p><a href="https://wa.me/919810947427?text=Hi%2C%20I%27d%20like%20to%20start%20the%20free%20Foundational%20Edge%20skill%20check" class="btn btn-ghost" style="margin-top:10px;">Message Swati on WhatsApp instead</a></p>
     </div>
 
@@ -112,12 +152,69 @@
 </div>
 
 <script>
-  // Mock Google Form links, tiered by grade band — REPLACE with real form URLs before launch.
+  // ---- Mock Google Form links, tiered by grade band — REPLACE with real form URLs before launch. ----
   var TIER_LINKS = {
     tier1: "https://forms.gle/MOCK-tier1-grade3-4",  // Grades 3-4
     tier2: "https://forms.gle/MOCK-tier2-grade5-6",  // Grades 5-6
     tier3: "https://forms.gle/MOCK-tier3-grade7-8"   // Grades 7-8
   };
+
+  // ---- Supabase (registrations table). Uses the public anon key by design — this is normal for
+  // Supabase's anon-key model, security lives in Postgres RLS / the RPC function below, not key
+  // secrecy. IMPORTANT: this page expects a one-time SQL setup step — see SETUP.sql in the repo
+  // root (or the PR description) for the "public select" policy removal + lookup_registration()
+  // function this code calls. Without that SQL applied, "Returning student" lookups will fail. ----
+  var SUPABASE_URL = 'https://wwmbpgtddsyettfdakbe.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3bWJwZ3RkZHN5ZXR0ZmRha2JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjA4MDksImV4cCI6MjA5OTMzNjgwOX0.owfmZtMW83G3HGW69ofbSbisRBMHgK7AX7QpSl-xRO8';
+  var REST_URL = SUPABASE_URL + '/rest/v1/registrations';
+  var RPC_LOOKUP_URL = SUPABASE_URL + '/rest/v1/rpc/lookup_registration';
+
+  function sbHeaders(extra){
+    var h = { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY };
+    for(var k in extra){ h[k] = extra[k]; }
+    return h;
+  }
+
+  function upsertRegistration(record){
+    // return=minimal: the caller already has the full record client-side and doesn't need it
+    // echoed back, so this doesn't depend on any SELECT policy — insert-only access is enough.
+    return fetch(REST_URL + '?on_conflict=id', {
+      method: 'POST',
+      headers: sbHeaders({ 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+      body: JSON.stringify([{
+        id: record.id,
+        child_name: record.childName,
+        parent_name: record.parentName,
+        country: record.country,
+        grade: record.grade,
+        competitions: record.competitions,
+        expectations: record.expectations,
+        whatsapp: record.whatsapp,
+        tier_link: record.tierLink
+      }])
+    }).then(function(res){
+      if(!res.ok) throw new Error('Supabase insert failed: ' + res.status);
+    });
+  }
+
+  // Looks up a single registration via a security-definer RPC function rather than a raw table
+  // SELECT, so the anon key can never list/dump the table — only fetch the id + tier link for one
+  // exact match. See SETUP.sql for the function this calls.
+  function lookupRegistration(id, name, phone){
+    return fetch(RPC_LOOKUP_URL, {
+      method: 'POST',
+      headers: sbHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ p_id: id || null, p_name: name || null, p_phone: phone || null })
+    }).then(function(res){
+      if(!res.ok) throw new Error('Supabase lookup failed: ' + res.status);
+      return res.json();
+    }).then(function(rows){ return (rows && rows[0]) || null; });
+  }
+
+  function rowToRecord(row){
+    if(!row) return null;
+    return { id: row.id, tierLink: row.tier_link };
+  }
 
   function tierForGrade(grade){
     var g = parseInt(grade, 10);
@@ -125,15 +222,93 @@
     if(g <= 6) return TIER_LINKS.tier2;
     return TIER_LINKS.tier3;
   }
+  function normalizeName(s){ return (s || '').trim().toLowerCase(); }
+  function normalizePhone(s){ return (s || '').replace(/[^0-9]/g, ''); }
+  function makeRegId(name, phone){
+    var pretty = (name || '').trim().split(/\s+/).filter(Boolean).map(function(w){
+      return w.charAt(0).toUpperCase() + w.slice(1);
+    }).join('');
+    return pretty + '@' + normalizePhone(phone);
+  }
 
-  document.getElementById('skillCheckForm').addEventListener('submit', function(e){
+  function setMode(mode){
+    document.getElementById('tab-new').classList.toggle('active', mode === 'new');
+    document.getElementById('tab-returning').classList.toggle('active', mode === 'returning');
+    document.getElementById('newForm').style.display = mode === 'new' ? '' : 'none';
+    document.getElementById('returningForm').style.display = mode === 'returning' ? '' : 'none';
+    document.getElementById('resultPanel').style.display = 'none';
+  }
+
+  function showResult(record, isReturning){
+    document.getElementById('newForm').style.display = 'none';
+    document.getElementById('returningForm').style.display = 'none';
+    document.getElementById('resultHeading').textContent = isReturning ? 'Welcome back!' : "You're registered!";
+    document.getElementById('resultSub').textContent = isReturning
+      ? 'Here is your skill check link again.'
+      : "Here's your registration ID — save it to look this up again later.";
+    document.getElementById('regIdBox').textContent = record.id;
+    document.getElementById('continueLink').setAttribute('href', record.tierLink);
+    document.getElementById('resultPanel').style.display = 'block';
+  }
+
+  document.getElementById('newForm').addEventListener('submit', function(e){
     e.preventDefault();
+    var btn = document.getElementById('newSubmitBtn');
+    var errEl = document.getElementById('newError');
+    errEl.style.display = 'none';
     var grade = document.getElementById('grade').value;
-    var dest = tierForGrade(grade);
-    document.getElementById('continueLink').setAttribute('href', dest);
-    this.style.display = 'none';
-    document.getElementById('gformThanks').style.display = 'block';
-    setTimeout(function(){ window.location.href = dest; }, 1200);
+    var childName = document.getElementById('childName').value;
+    var whatsapp = normalizePhone(document.getElementById('whatsapp').value);
+    var regId = makeRegId(childName, whatsapp);
+    var record = {
+      id: regId,
+      childName: childName,
+      parentName: document.getElementById('parentName').value,
+      country: document.getElementById('country').value,
+      grade: grade,
+      competitions: document.getElementById('competitions').value,
+      expectations: document.getElementById('expectations').value,
+      whatsapp: whatsapp,
+      tierLink: tierForGrade(grade)
+    };
+    btn.disabled = true; btn.textContent = 'Saving\u2026';
+    upsertRegistration(record).then(function(){
+      showResult(record, false);
+    }).catch(function(err){
+      console.error(err);
+      errEl.style.display = 'block';
+    }).finally(function(){
+      btn.disabled = false; btn.textContent = 'Register & continue \u2192';
+    });
+  });
+
+  document.getElementById('returningForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var btn = document.getElementById('returningSubmitBtn');
+    var errEl = document.getElementById('lookupError');
+    errEl.style.display = 'none';
+    var regId = document.getElementById('lookupRegId').value.trim();
+    var name = document.getElementById('lookupChildName').value;
+    var phone = normalizePhone(document.getElementById('lookupWhatsapp').value);
+
+    btn.disabled = true; btn.textContent = 'Looking up\u2026';
+    var lookup = (regId || (name && phone)) ? lookupRegistration(regId, name, phone) : Promise.resolve(null);
+
+    lookup.then(function(row){
+      var record = rowToRecord(row);
+      if(record){
+        showResult(record, true);
+      } else {
+        errEl.textContent = "We couldn't find a registration matching that. Double-check the details, or register as new above.";
+        errEl.style.display = 'block';
+      }
+    }).catch(function(err){
+      console.error(err);
+      errEl.textContent = 'Something went wrong looking that up. Please try again, or message Swati on WhatsApp.';
+      errEl.style.display = 'block';
+    }).finally(function(){
+      btn.disabled = false; btn.textContent = 'Find my skill check \u2192';
+    });
   });
 </script>
 
