@@ -22,10 +22,10 @@
       <li><a href="#pricing">Pricing</a></li>
       <li><a href="#stories">Families</a></li>
       <li><a href="tutor.html">Meet the tutor</a></li>
-      <li class="nav-cta-mobile"><a href="#assess" class="btn btn-primary">Free skill check</a></li>
+      <li class="nav-cta-mobile"><a href="practice-test.html" class="btn btn-primary">Free skill check</a></li>
     </ul>
     <div class="nav-cta">
-      <a href="#assess" class="btn btn-primary">Free skill check</a>
+      <a href="practice-test.html" class="btn btn-primary">Free skill check</a>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
     </div>
   </nav>
@@ -41,53 +41,56 @@
         <h1>Know exactly where your child stands — <em>wherever</em> in the world you live.</h1>
         <p class="lede">A monthly ranked skill check, a personal improvement plan, and ongoing coaching — built on one tutor's proven 1:1 method, for families in India and the diaspora.</p>
         <div class="hero-actions">
-          <a href="#assess" class="btn btn-gold">Get your child's free skill check</a>
-          <a href="#how" class="btn btn-ghost">See how it works</a>
-        </div>
-        <div class="region-toggle region-toggle-inline reveal" role="tablist" aria-label="Region">
-          <button class="region-tab active" data-region-tab="india" onclick="setRegion('india')">India</button>
-          <button class="region-tab" data-region-tab="intl" onclick="setRegion('intl')">Outside India</button>
+          <a href="practice-test.html" class="btn btn-gold">Get your child's free skill check</a>
         </div>
       </div>
 
-      <div class="rankcard reveal">
-        <div class="rankcard-head" data-region-only="india">
-          <div>
-            <span class="eyebrow">Foundational Edge · Monthly Report</span>
-            <div class="rankcard-name">Ananya R. · Grade 6</div>
-            <div class="rankcard-tier">Intermediate Tier · Grades 5–6</div>
+      <div class="rankcard-scroll" id="rankcardScroll">
+        <div class="rankcard reveal">
+          <div class="rankcard-head">
+            <div>
+              <span class="eyebrow">Foundational Edge · Monthly Report</span>
+              <div class="rankcard-name">Ananya R. · Grade 6</div>
+              <div class="rankcard-tier">Intermediate Tier · Grades 5–6</div>
+            </div>
+            <div class="seal">TOP<br>8<span class="mono">%ILE</span></div>
           </div>
-          <div class="seal">TOP<br>8<span class="mono">%ILE</span></div>
-        </div>
-        <div class="rankcard-head" data-region-only="intl">
-          <div>
-            <span class="eyebrow">Foundational Edge · Monthly Report</span>
-            <div class="rankcard-name">Kabir M. · Grade 6</div>
-            <div class="rankcard-tier">Intermediate Tier · Grades 5–6</div>
+          <div class="rankcard-stat">
+            <span class="num">92<span style="font-size:20px;">nd</span></span>
+            <span class="lbl">percentile, India cohort, June check-in</span>
           </div>
-          <div class="seal">TOP<br>5<span class="mono">%ILE</span></div>
+          <div class="rankcard-rows">
+            <div class="rankcard-row"><span class="name">Quantitative Reasoning</span><div class="bar"><span style="width:88%"></span></div></div>
+            <div class="rankcard-row"><span class="name">Verbal Reasoning</span><div class="bar"><span style="width:81%"></span></div></div>
+            <div class="rankcard-row"><span class="name">Logical Reasoning</span><div class="bar"><span style="width:90%"></span></div></div>
+          </div>
+          <div class="rankcard-foot">
+            <span>NEXT RANKED CHECK: 1 AUG</span>
+            <span>SAMPLE REPORT</span>
+          </div>
         </div>
-        <div class="rankcard-stat" data-region-only="india">
-          <span class="num">92<span style="font-size:20px;">nd</span></span>
-          <span class="lbl">percentile, India cohort, June check-in</span>
-        </div>
-        <div class="rankcard-stat" data-region-only="intl">
-          <span class="num">95<span style="font-size:20px;">th</span></span>
-          <span class="lbl">percentile, India + diaspora pool, June check-in</span>
-        </div>
-        <div class="rankcard-rows" data-region-only="india">
-          <div class="rankcard-row"><span class="name">Quantitative Reasoning</span><div class="bar"><span style="width:88%"></span></div></div>
-          <div class="rankcard-row"><span class="name">Verbal Reasoning</span><div class="bar"><span style="width:81%"></span></div></div>
-          <div class="rankcard-row"><span class="name">Logical Reasoning</span><div class="bar"><span style="width:90%"></span></div></div>
-        </div>
-        <div class="rankcard-rows" data-region-only="intl">
-          <div class="rankcard-row"><span class="name">Quantitative Reasoning</span><div class="bar"><span style="width:91%"></span></div></div>
-          <div class="rankcard-row"><span class="name">Verbal Reasoning</span><div class="bar"><span style="width:85%"></span></div></div>
-          <div class="rankcard-row"><span class="name">Logical Reasoning</span><div class="bar"><span style="width:93%"></span></div></div>
-        </div>
-        <div class="rankcard-foot">
-          <span>NEXT RANKED CHECK: 1 AUG</span>
-          <span>SAMPLE REPORT</span>
+        <div class="rankcard reveal">
+          <div class="rankcard-head">
+            <div>
+              <span class="eyebrow">Foundational Edge · Monthly Report</span>
+              <div class="rankcard-name">Kabir M. · Grade 6</div>
+              <div class="rankcard-tier">Intermediate Tier · Grades 5–6</div>
+            </div>
+            <div class="seal">TOP<br>5<span class="mono">%ILE</span></div>
+          </div>
+          <div class="rankcard-stat">
+            <span class="num">95<span style="font-size:20px;">th</span></span>
+            <span class="lbl">percentile, India + diaspora pool, June check-in</span>
+          </div>
+          <div class="rankcard-rows">
+            <div class="rankcard-row"><span class="name">Quantitative Reasoning</span><div class="bar"><span style="width:91%"></span></div></div>
+            <div class="rankcard-row"><span class="name">Verbal Reasoning</span><div class="bar"><span style="width:85%"></span></div></div>
+            <div class="rankcard-row"><span class="name">Logical Reasoning</span><div class="bar"><span style="width:93%"></span></div></div>
+          </div>
+          <div class="rankcard-foot">
+            <span>NEXT RANKED CHECK: 1 AUG</span>
+            <span>SAMPLE REPORT</span>
+          </div>
         </div>
       </div>
     </div>
@@ -210,7 +213,7 @@
             <li>Instant basic score</li>
             <li>No rank shown</li>
           </ul>
-          <a href="#assess" class="btn btn-ghost">Start free check</a>
+          <a href="practice-test.html" class="btn btn-ghost">Start with the free check</a>
         </div>
         <div class="price-card featured">
           <h3>Diagnostic report</h3>
@@ -238,7 +241,7 @@
             <li>Monthly ranked skill check</li>
             <li>Quarterly certificate &amp; progress call</li>
           </ul>
-          <a href="#assess" class="btn btn-ghost">Start with the free check</a>
+          <a href="practice-test.html" class="btn btn-ghost">Start with the free check</a>
         </div>
       </div>
     </div>
@@ -275,8 +278,8 @@
       <h2>Start with the free skill check — takes about 15 minutes.</h2>
       <p>No payment details needed. You'll get your child's basic score right away, and can decide from there.</p>
       <div class="cta-actions">
-        <a href="https://wa.me/919810947427?text=Hi%2C%20I%27d%20like%20to%20start%20the%20free%20Foundational%20Edge%20skill%20check" class="btn btn-primary">Start on WhatsApp →</a>
-        <a href="mailto:swatig8591@gmail.com" class="btn btn-ghost">Email us instead</a>
+        <a href="practice-test.html" class="btn btn-primary">Take the skill check →</a>
+        <a href="https://wa.me/919810947427?text=Hi%2C%20I%27d%20like%20to%20start%20the%20free%20Foundational%20Edge%20skill%20check" class="btn btn-ghost">Message Swati on WhatsApp instead</a>
       </div>
     </div>
   </section>

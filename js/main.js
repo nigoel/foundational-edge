@@ -20,3 +20,10 @@
     entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
   }, { threshold: 0.12 });
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // rank card sample: randomize which of the two dummy certificates shows first
+  const rankScroll = document.getElementById('rankcardScroll');
+  if(rankScroll && Math.random() < 0.5){
+    const cards = [...rankScroll.children];
+    cards.reverse().forEach(c => rankScroll.appendChild(c));
+  }

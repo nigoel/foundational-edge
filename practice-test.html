@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Start Your Child's Free Skill Check — Foundational Edge</title>
+<meta name="description" content="Tell us about your child and we'll route you to the right free skill check for their grade level.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="gform-shell">
+  <div class="gform-wrap">
+
+    <div class="gform-banner">
+      <span>TAKES ABOUT 2 MINUTES</span>
+      <a href="index.html#top">← Back to Foundational Edge</a>
+    </div>
+
+    <form id="skillCheckForm">
+      <div class="gform-card gform-title">
+        <div class="gform-title-inner">
+          <h1>Start Your Child's Free Skill Check</h1>
+          <p>Tell us a bit about your child, and we'll take you straight to the right skill check for their grade level.</p>
+        </div>
+      </div>
+
+      <div class="gform-card">
+        <div class="gform-q">
+          <div class="qtext">Child's name<span class="req">*</span></div>
+          <input class="gform-textinput" id="childName" type="text" placeholder="Your answer" required>
+        </div>
+      </div>
+
+      <div class="gform-card">
+        <div class="gform-q">
+          <div class="qtext">Parent's name<span class="req">*</span></div>
+          <input class="gform-textinput" id="parentName" type="text" placeholder="Your answer" required>
+        </div>
+      </div>
+
+      <div class="gform-card">
+        <div class="gform-q">
+          <div class="qtext">Country<span class="req">*</span></div>
+          <select class="gform-select" id="country" required>
+            <option value="">Choose</option>
+            <option>India</option>
+            <option>United States</option>
+            <option>United Kingdom</option>
+            <option>United Arab Emirates</option>
+            <option>Singapore</option>
+            <option>Australia</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="gform-card">
+        <div class="gform-q">
+          <div class="qtext">Child's current grade<span class="req">*</span></div>
+          <select class="gform-select" id="grade" required>
+            <option value="">Choose</option>
+            <option value="3">Grade 3</option>
+            <option value="4">Grade 4</option>
+            <option value="5">Grade 5</option>
+            <option value="6">Grade 6</option>
+            <option value="7">Grade 7</option>
+            <option value="8">Grade 8</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="gform-card">
+        <div class="gform-q">
+          <div class="qtext">Any specific competitions or exams you have in mind? <span style="color:#5f6368; font-weight:400;">(optional)</span></div>
+          <input class="gform-textinput" id="competitions" type="text" placeholder="e.g. Math Kangaroo, school scholarship exam, none in particular" style="max-width:520px;">
+        </div>
+      </div>
+
+      <div class="gform-card">
+        <div class="gform-q">
+          <div class="qtext">What are you hoping this subscription does for your child?<span class="req">*</span></div>
+          <textarea class="gform-textarea" id="expectations" rows="3" placeholder="Your answer" required></textarea>
+        </div>
+      </div>
+
+      <div class="gform-card">
+        <div class="gform-q">
+          <div class="qtext">Parent's WhatsApp number (for results)<span class="req">*</span></div>
+          <input class="gform-textinput" id="whatsapp" type="tel" placeholder="+91 98765 43210" required>
+        </div>
+      </div>
+
+      <div class="gform-actions">
+        <button type="submit" class="gform-submit">Continue to skill check →</button>
+        <button type="reset" class="gform-clear">Clear form</button>
+      </div>
+      <p class="gform-note">We'll take you to the skill check matched to your child's grade tier right after this.</p>
+    </form>
+
+    <div class="gform-thanks" id="gformThanks">
+      <h2>Thanks — taking you to the skill check now…</h2>
+      <p>If you're not redirected automatically, use the link below. Prefer WhatsApp?</p>
+      <p><a id="continueLink" href="#" class="btn btn-primary" style="margin-top:6px;">Go to the skill check →</a></p>
+      <p><a href="https://wa.me/919810947427?text=Hi%2C%20I%27d%20like%20to%20start%20the%20free%20Foundational%20Edge%20skill%20check" class="btn btn-ghost" style="margin-top:10px;">Message Swati on WhatsApp instead</a></p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // Mock Google Form links, tiered by grade band — REPLACE with real form URLs before launch.
+  var TIER_LINKS = {
+    tier1: "https://forms.gle/MOCK-tier1-grade3-4",  // Grades 3-4
+    tier2: "https://forms.gle/MOCK-tier2-grade5-6",  // Grades 5-6
+    tier3: "https://forms.gle/MOCK-tier3-grade7-8"   // Grades 7-8
+  };
+
+  function tierForGrade(grade){
+    var g = parseInt(grade, 10);
+    if(g <= 4) return TIER_LINKS.tier1;
+    if(g <= 6) return TIER_LINKS.tier2;
+    return TIER_LINKS.tier3;
+  }
+
+  document.getElementById('skillCheckForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var grade = document.getElementById('grade').value;
+    var dest = tierForGrade(grade);
+    document.getElementById('continueLink').setAttribute('href', dest);
+    this.style.display = 'none';
+    document.getElementById('gformThanks').style.display = 'block';
+    setTimeout(function(){ window.location.href = dest; }, 1200);
+  });
+</script>
+
+</body>
+</html>
