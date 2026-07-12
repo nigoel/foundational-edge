@@ -29,6 +29,10 @@ drop policy if exists "public update" on registrations;
 -- 2. register_child(): the only way anon can write to this table. Performs
 --    the insert-or-update itself as the function owner, bypassing RLS,
 --    then returns just enough for the client to continue (id + tier link).
+--    Explicit DROP first: CREATE OR REPLACE can't change a function's
+--    output column names/types (42P13), and an earlier version of this
+--    script created this function with different output column names.
+drop function if exists public.register_child(text, text, text, text, text, text, text, text, text);
 create or replace function public.register_child(
   p_id text,
   p_child_name text,
@@ -40,7 +44,13 @@ create or replace function public.register_child(
   p_whatsapp text,
   p_tier_link text
 )
-returns table (id text, tier_link text)
+-- Note: the output columns are deliberately NOT named `id`/`tier_link` —
+-- RETURNS TABLE creates implicit PL/pgSQL variables with those names, which
+-- would collide with (and shadow) the actual `id`/`tier_link` *columns*
+-- referenced below in `on conflict (id)` etc., causing a "column reference
+-- is ambiguous" error (42702). The client ignores this function's response
+-- body entirely, so the exact output names don't matter to it.
+returns table (result_id text, result_tier_link text)
 language plpgsql
 security definer
 set search_path = public
