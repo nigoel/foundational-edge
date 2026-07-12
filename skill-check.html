@@ -40,6 +40,11 @@
         <p>Answer the questions below — it takes about 15 minutes. Your results go straight to Swati's team.</p>
       </div>
 
+      <div class="worksheet-note reveal">
+        <p><strong>Optional, but encouraged:</strong> if your child worked anything out on paper, send us a photo of the rough work too — it helps Swati spot exactly where the gaps are, not just the final answers.</p>
+        <a id="worksheetWhatsappLink" href="#" class="btn btn-primary" target="_blank" rel="noopener">Send worksheet photos to Swati →</a>
+      </div>
+
       <div class="embed-card reveal">
         <iframe id="formFrame" src="" title="Foundational Edge skill check" loading="lazy">Loading…</iframe>
       </div>
@@ -97,6 +102,23 @@
   document.getElementById('tierEyebrow').textContent = 'Free skill check · ' + entry.label;
   document.getElementById('formFrame').src = entry.url + (prefillQuery ? prefillQuery + '&embedded=true' : '?embedded=true');
   document.getElementById('fallbackLink').href = entry.url + prefillQuery;
+
+  // ---- "Send worksheet photos to Swati" WhatsApp deep link. There's no file upload here by
+  // design — WhatsApp can't be pre-loaded with attachments via a link, so this just pre-fills the
+  // message text with enough detail (registration ID, child's name, grade tier) for Swati to match
+  // the photos to the right registration once the parent attaches and sends them in the chat. ----
+  function prettifyFromRegId(id){
+    if(!id) return '';
+    var namePart = id.split('@')[0] || '';
+    return namePart.replace(/([a-z0-9])([A-Z])/g, '$1 $2').trim();
+  }
+
+  var childName = prettifyFromRegId(regId);
+  var waTextParts = ["Hi Swati, I'd like to share " + (childName ? 'my child ' + childName + "'s" : "my child's") + ' rough worksheet photos for the free skill check.'];
+  if (regId) waTextParts.push('Registration ID: ' + regId + '.');
+  waTextParts.push('(' + entry.label + ')');
+  var waText = waTextParts.join(' ');
+  document.getElementById('worksheetWhatsappLink').href = 'https://wa.me/919810947427?text=' + encodeURIComponent(waText);
 </script>
 
 </body>
