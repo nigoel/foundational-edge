@@ -70,25 +70,33 @@
 <script src="js/main.js"></script>
 <script>
   // ---- Embedded Google Forms, tiered by grade band. Each entry is the plain "view" URL for the
-  // form; ?embedded=true is appended automatically for the iframe, and the fallback "open in new
-  // tab" link uses the un-embedded version.
+  // form, plus the entry.NNNNNN field ID of that form's "Registration ID" question (get this via
+  // the form's "⋮" menu → Get pre-filled link) so we can pre-fill it from the reg ID passed in the
+  // ?regId= query param. ?embedded=true is appended automatically for the iframe, and the fallback
+  // "open in new tab" link uses the un-embedded version.
   // NOTE: all three tiers currently share the same placeholder form (logical-reasoning sample
-  // questions) — replace tier1/tier3's url below with their own grade-specific forms once you've
-  // created them; tier2 is already the real one you sent. ----
+  // questions) — replace tier1/tier3's url below with their own grade-specific forms (and their
+  // own regIdEntry) once you've created them; tier2 is already the real one you sent. ----
   var SHARED_PLACEHOLDER_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSc099Yj6XDImZbW5oBZLuLBRhnJbcy7P4WT3XMvl8-KxJ1uQw/viewform';
+  var SHARED_REGID_ENTRY = 'entry.743818152';
   var TIER_FORMS = {
-    '1': { label: 'Grades 3–4', url: SHARED_PLACEHOLDER_FORM },
-    '2': { label: 'Grades 5–6', url: SHARED_PLACEHOLDER_FORM },
-    '3': { label: 'Grades 7–8', url: SHARED_PLACEHOLDER_FORM }
+    '1': { label: 'Grades 3–4', url: SHARED_PLACEHOLDER_FORM, regIdEntry: SHARED_REGID_ENTRY },
+    '2': { label: 'Grades 5–6', url: SHARED_PLACEHOLDER_FORM, regIdEntry: SHARED_REGID_ENTRY },
+    '3': { label: 'Grades 7–8', url: SHARED_PLACEHOLDER_FORM, regIdEntry: SHARED_REGID_ENTRY }
   };
 
   var params = new URLSearchParams(window.location.search);
   var tier = params.get('tier');
+  var regId = params.get('regId');
   var entry = TIER_FORMS[tier] || TIER_FORMS['2'];
 
+  var prefillQuery = (regId && entry.regIdEntry)
+    ? '?' + entry.regIdEntry + '=' + encodeURIComponent(regId)
+    : '';
+
   document.getElementById('tierEyebrow').textContent = 'Free skill check · ' + entry.label;
-  document.getElementById('formFrame').src = entry.url + '?embedded=true';
-  document.getElementById('fallbackLink').href = entry.url;
+  document.getElementById('formFrame').src = entry.url + (prefillQuery ? prefillQuery + '&embedded=true' : '?embedded=true');
+  document.getElementById('fallbackLink').href = entry.url + prefillQuery;
 </script>
 
 </body>
