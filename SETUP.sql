@@ -29,6 +29,10 @@ drop policy if exists "public update" on registrations;
 -- 2. register_child(): the only way anon can write to this table. Performs
 --    the insert-or-update itself as the function owner, bypassing RLS,
 --    then returns just enough for the client to continue (id + tier link).
+--    Explicit DROP first: CREATE OR REPLACE can't change a function's
+--    output column names/types (42P13), and an earlier version of this
+--    script created this function with different output column names.
+drop function if exists public.register_child(text, text, text, text, text, text, text, text, text);
 create or replace function public.register_child(
   p_id text,
   p_child_name text,
