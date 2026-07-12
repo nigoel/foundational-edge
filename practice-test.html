@@ -160,13 +160,13 @@
   };
 
   // ---- Supabase (registrations table). Uses the public anon key by design — this is normal for
-  // Supabase's anon-key model, security lives in Postgres RLS / the RPC function below, not key
-  // secrecy. IMPORTANT: this page expects a one-time SQL setup step — see SETUP.sql in the repo
-  // root (or the PR description) for the "public select" policy removal + lookup_registration()
-  // function this code calls. Without that SQL applied, "Returning student" lookups will fail. ----
+  // Supabase's anon-key model. `anon` has NO direct table privileges at all (no select, insert, or
+  // update grant) — every operation goes through a narrow security-definer RPC function below.
+  // IMPORTANT: this page expects a one-time SQL setup step — see SETUP.sql in the repo root (or
+  // the PR description). Without that SQL applied, this page's requests will fail. ----
   var SUPABASE_URL = 'https://wwmbpgtddsyettfdakbe.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3bWJwZ3RkZHN5ZXR0ZmRha2JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjA4MDksImV4cCI6MjA5OTMzNjgwOX0.owfmZtMW83G3HGW69ofbSbisRBMHgK7AX7QpSl-xRO8';
-  var REST_URL = SUPABASE_URL + '/rest/v1/registrations';
+  var RPC_REGISTER_URL = SUPABASE_URL + '/rest/v1/rpc/register_child';
   var RPC_LOOKUP_URL = SUPABASE_URL + '/rest/v1/rpc/lookup_registration';
 
   function sbHeaders(extra){
@@ -175,23 +175,27 @@
     return h;
   }
 
+  // Registers (or re-registers) a child via a security-definer RPC function rather than a raw
+  // table INSERT. This sidesteps a real Postgres RLS limitation: INSERT ... ON CONFLICT DO UPDATE
+  // needs SELECT-level RLS visibility to check for an existing row, which anon intentionally
+  // doesn't have (that's what makes the lookup function below safe from table-dumping). Running
+  // the upsert inside a SECURITY DEFINER function sidesteps that entirely — anon never touches the
+  // table directly for writes either. See SETUP.sql for the function this calls.
   function upsertRegistration(record){
-    // return=minimal: the caller already has the full record client-side and doesn't need it
-    // echoed back, so this doesn't depend on any SELECT policy — insert-only access is enough.
-    return fetch(REST_URL + '?on_conflict=id', {
+    return fetch(RPC_REGISTER_URL, {
       method: 'POST',
-      headers: sbHeaders({ 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
-      body: JSON.stringify([{
-        id: record.id,
-        child_name: record.childName,
-        parent_name: record.parentName,
-        country: record.country,
-        grade: record.grade,
-        competitions: record.competitions,
-        expectations: record.expectations,
-        whatsapp: record.whatsapp,
-        tier_link: record.tierLink
-      }])
+      headers: sbHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({
+        p_id: record.id,
+        p_child_name: record.childName,
+        p_parent_name: record.parentName,
+        p_country: record.country,
+        p_grade: record.grade,
+        p_competitions: record.competitions,
+        p_expectations: record.expectations,
+        p_whatsapp: record.whatsapp,
+        p_tier_link: record.tierLink
+      })
     }).then(function(res){
       if(!res.ok) throw new Error('Supabase insert failed: ' + res.status);
     });
