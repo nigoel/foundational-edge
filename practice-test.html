@@ -253,7 +253,11 @@
       ? 'Here is your skill check link again.'
       : "Here's your registration ID — save it to look this up again later.";
     document.getElementById('regIdBox').textContent = record.id;
-    document.getElementById('continueLink').setAttribute('href', record.tierLink);
+    // Append regId so skill-check.html can pre-fill the "Registration ID" question on the
+    // embedded Google Form — record.tierLink is always "skill-check.html?tier=N" so it already
+    // has a query string.
+    var sep = record.tierLink.indexOf('?') === -1 ? '?' : '&';
+    document.getElementById('continueLink').setAttribute('href', record.tierLink + sep + 'regId=' + encodeURIComponent(record.id));
     document.getElementById('resultPanel').style.display = 'block';
   }
 
