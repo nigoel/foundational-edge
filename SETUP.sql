@@ -2,42 +2,74 @@
 -- registration/lookup feature. Run this in the Supabase SQL editor for
 -- project wwmbpgtddsyettfdakbe (https://supabase.com/dashboard/project/wwmbpgtddsyettfdakbe).
 --
--- Context: the original "public select" policy let anyone holding the
--- page's anon key read every row in `registrations` (every family's name,
--- WhatsApp number, country, grade) with a single REST call. This migration
--- removes that policy and replaces the "returning student" lookup with a
--- security-definer function that only ever returns the id + tier_link for
--- one exact match — never a listing of the table.
+-- Design: `anon` has NO direct privileges on the `registrations` table at
+-- all — no SELECT, INSERT, or UPDATE grant/policy. Every operation goes
+-- through one of two narrow SECURITY DEFINER functions below, each doing
+-- exactly one controlled thing:
+--   - register_child(...): upserts one row, returns only id + tier_link
+--   - lookup_registration(...): finds one row by exact id or name+phone,
+--     returns only id + tier_link
+-- Neither function can be used to list, dump, or bulk-read the table.
 --
--- Safe to run even if `registrations` already has rows; it only touches
--- policies and adds a function.
+-- (History: an earlier version of this script tried granting `anon` direct
+-- INSERT/UPDATE policies instead. That turned out to be a dead end —
+-- INSERT ... ON CONFLICT DO UPDATE requires SELECT-level RLS visibility to
+-- check for an existing row, which conflicts with intentionally not
+-- granting anon any SELECT access. Routing the whole upsert through a
+-- SECURITY DEFINER function sidesteps that restriction entirely.)
+--
+-- Safe to run multiple times / even if `registrations` already has rows.
 
--- 0. Make sure INSERT actually works. The original design notes described a
---    "public insert" policy as already created, but on the live project no
---    such policy exists (new registrations fail with 42501 "new row violates
---    row-level security policy"). Create it here so this script is fully
---    self-contained regardless of what was or wasn't actually run before.
-drop policy if exists "public insert" on registrations;
-create policy "public insert" on registrations for insert to anon with check (true);
-
--- 1. Remove the wide-open read policy (drop only if it exists — it may
---    never have been created either; harmless no-op either way).
+-- 1. Drop any direct-access policies from earlier attempts — anon should
+--    have zero standing privileges on this table now.
 drop policy if exists "public select" on registrations;
-
--- 1b. The registration form upserts (INSERT ... ON CONFLICT (id) DO UPDATE)
---     so a family re-registering with the same child+phone updates their
---     existing row instead of erroring. That conflict-update branch needs
---     an UPDATE policy — the original setup only granted INSERT, which
---     means re-registration would fail with a permission error. Anon is
---     already fully trusted for insert under this MVP design, so this
---     matches that same trust level rather than adding a new gap.
+drop policy if exists "public insert" on registrations;
 drop policy if exists "public update" on registrations;
-create policy "public update" on registrations for update to anon using (true) with check (true);
 
--- 2. Narrow lookup function: returns id + tier_link for a single match by
---    registration id, or by child_name + whatsapp — nothing else, and never
---    more than one row. SECURITY DEFINER lets it read the table on behalf
---    of the anon caller without anon having a direct SELECT grant.
+-- 2. register_child(): the only way anon can write to this table. Performs
+--    the insert-or-update itself as the function owner, bypassing RLS,
+--    then returns just enough for the client to continue (id + tier link).
+create or replace function public.register_child(
+  p_id text,
+  p_child_name text,
+  p_parent_name text,
+  p_country text,
+  p_grade text,
+  p_competitions text,
+  p_expectations text,
+  p_whatsapp text,
+  p_tier_link text
+)
+returns table (id text, tier_link text)
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into registrations
+    (id, child_name, parent_name, country, grade, competitions, expectations, whatsapp, tier_link)
+  values
+    (p_id, p_child_name, p_parent_name, p_country, p_grade, p_competitions, p_expectations, p_whatsapp, p_tier_link)
+  on conflict (id) do update set
+    child_name = excluded.child_name,
+    parent_name = excluded.parent_name,
+    country = excluded.country,
+    grade = excluded.grade,
+    competitions = excluded.competitions,
+    expectations = excluded.expectations,
+    whatsapp = excluded.whatsapp,
+    tier_link = excluded.tier_link;
+
+  return query select p_id, p_tier_link;
+end;
+$$;
+
+revoke all on function public.register_child(text, text, text, text, text, text, text, text, text) from public;
+grant execute on function public.register_child(text, text, text, text, text, text, text, text, text) to anon;
+
+-- 3. lookup_registration(): the only way anon can read from this table —
+--    one exact match by id or by child_name + whatsapp, returning only
+--    id + tier_link. Never a listing of the table.
 create or replace function public.lookup_registration(
   p_id text default null,
   p_name text default null,
@@ -60,6 +92,5 @@ $$;
 revoke all on function public.lookup_registration(text, text, text) from public;
 grant execute on function public.lookup_registration(text, text, text) to anon;
 
--- After this runs: anon can still INSERT (new registrations) and can call
--- lookup_registration() (returning-student lookups), but can no longer
--- SELECT the registrations table directly.
+-- After this runs: anon can register_child() and lookup_registration(),
+-- and nothing else — no direct table access of any kind.
