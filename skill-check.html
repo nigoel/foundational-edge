@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Free Skill Check — Foundational Edge</title>
+<meta name="description" content="Take your child's free grade-tiered skill check.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<header>
+  <nav class="nav" id="nav">
+    <a href="index.html#top" class="logo">Foundational<span class="dot">·</span>Edge</a>
+    <ul class="nav-links">
+      <li><a href="index.html#how">How it works</a></li>
+      <li><a href="index.html#skills">What we test</a></li>
+      <li><a href="index.html#included">What's included</a></li>
+      <li><a href="index.html#pricing">Pricing</a></li>
+      <li><a href="index.html#stories">Families</a></li>
+      <li><a href="tutor.html">Meet the tutor</a></li>
+      <li class="nav-cta-mobile"><a href="practice-test.html" class="btn btn-primary">Free skill check</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="practice-test.html" class="btn btn-primary">Free skill check</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+  <section id="check" style="padding-top:40px;">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow" id="tierEyebrow">Free skill check</span>
+        <h2 id="checkHeading">Your child's skill check</h2>
+        <p>Answer the questions below — it takes about 15 minutes. Your results go straight to Swati's team.</p>
+      </div>
+
+      <div class="embed-card reveal">
+        <iframe id="formFrame" src="" title="Foundational Edge skill check" loading="lazy">Loading…</iframe>
+      </div>
+
+      <p class="embed-fallback">
+        Form not loading? <a id="fallbackLink" href="#" target="_blank" rel="noopener">Open it in a new tab</a>,
+        or <a href="https://wa.me/919810947427?text=Hi%2C%20I%27d%20like%20to%20start%20the%20free%20Foundational%20Edge%20skill%20check">message Swati on WhatsApp instead</a>.
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot-grid">
+    <div>
+      <a href="index.html#top" class="logo">Foundational<span class="dot">·</span>Edge</a>
+      <p class="foot-note">A skills assessment and coaching program for children in Grades 3–8, for families in India and the diaspora. Not affiliated with any school board or exam body.</p>
+    </div>
+    <ul class="foot-links">
+      <li><a href="index.html#how">How it works</a></li>
+      <li><a href="index.html#pricing">Pricing</a></li>
+      <li><a href="tutor.html">Meet the tutor</a></li>
+      <li><a href="mailto:swatig8591@gmail.com">Contact</a></li>
+    </ul>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+<script>
+  // ---- Embedded Google Forms, tiered by grade band. Each entry is the plain "view" URL for the
+  // form; ?embedded=true is appended automatically for the iframe, and the fallback "open in new
+  // tab" link uses the un-embedded version.
+  // NOTE: all three tiers currently share the same placeholder form (logical-reasoning sample
+  // questions) — replace tier1/tier3's url below with their own grade-specific forms once you've
+  // created them; tier2 is already the real one you sent. ----
+  var SHARED_PLACEHOLDER_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSc099Yj6XDImZbW5oBZLuLBRhnJbcy7P4WT3XMvl8-KxJ1uQw/viewform';
+  var TIER_FORMS = {
+    '1': { label: 'Grades 3–4', url: SHARED_PLACEHOLDER_FORM },
+    '2': { label: 'Grades 5–6', url: SHARED_PLACEHOLDER_FORM },
+    '3': { label: 'Grades 7–8', url: SHARED_PLACEHOLDER_FORM }
+  };
+
+  var params = new URLSearchParams(window.location.search);
+  var tier = params.get('tier');
+  var entry = TIER_FORMS[tier] || TIER_FORMS['2'];
+
+  document.getElementById('tierEyebrow').textContent = 'Free skill check · ' + entry.label;
+  document.getElementById('formFrame').src = entry.url + '?embedded=true';
+  document.getElementById('fallbackLink').href = entry.url;
+</script>
+
+</body>
+</html>

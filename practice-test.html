@@ -152,11 +152,13 @@
 </div>
 
 <script>
-  // ---- Mock Google Form links, tiered by grade band — REPLACE with real form URLs before launch. ----
+  // ---- Skill-check destinations, tiered by grade band. Each now points to skill-check.html,
+  // which embeds the actual Google Form for that tier (see TIER_FORMS in skill-check.html) —
+  // update the form URLs there, not here. ----
   var TIER_LINKS = {
-    tier1: "https://forms.gle/MOCK-tier1-grade3-4",  // Grades 3-4
-    tier2: "https://forms.gle/MOCK-tier2-grade5-6",  // Grades 5-6
-    tier3: "https://forms.gle/MOCK-tier3-grade7-8"   // Grades 7-8
+    tier1: "skill-check.html?tier=1",  // Grades 3-4
+    tier2: "skill-check.html?tier=2",  // Grades 5-6
+    tier3: "skill-check.html?tier=3"   // Grades 7-8
   };
 
   // ---- Supabase (registrations table). Uses the public anon key by design — this is normal for
