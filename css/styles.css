@@ -464,18 +464,12 @@
   .worksheet-note{
     background:var(--paper-lt); border:1px solid var(--line); border-top:4px solid var(--teal);
     border-radius:6px; padding:20px 26px; margin-bottom:24px;
-  }
-  .worksheet-note p{ margin:0; font-size:15px; color:var(--ink); max-width:64ch; }
-
-  .worksheet-cta{
-    background:var(--paper-lt); border:1px solid var(--line); border-top:4px solid var(--teal);
-    border-radius:6px; padding:22px 26px; margin-top:24px;
     display:flex; align-items:center; justify-content:space-between; gap:20px; flex-wrap:wrap;
   }
-  .worksheet-cta p{ margin:0; font-size:15px; color:var(--ink); max-width:56ch; }
+  .worksheet-note p{ margin:0; font-size:15px; color:var(--ink); max-width:56ch; }
   @media (max-width:720px){
-    .worksheet-cta{ flex-direction:column; align-items:stretch; text-align:left; }
-    .worksheet-cta .btn{ width:100%; justify-content:center; }
+    .worksheet-note{ flex-direction:column; align-items:stretch; text-align:left; }
+    .worksheet-note .btn{ width:100%; justify-content:center; }
   }
 
   /* ---------- embedded skill-check form ---------- */
@@ -484,7 +478,7 @@
     overflow:hidden; box-shadow:0 24px 48px -32px rgba(22,40,61,0.35);
   }
   .embed-card iframe{
-    display:block; width:100%; height:1400px; border:none;
+    display:block; width:100%; height:1400px; border:none; transition:height .35s ease;
   }
   .embed-fallback{
     font-size:13px; color:var(--ink-soft); text-align:center; margin:18px 0 0;

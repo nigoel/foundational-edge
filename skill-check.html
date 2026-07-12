@@ -41,7 +41,8 @@
       </div>
 
       <div class="worksheet-note reveal">
-        <p><strong>Optional, but encouraged:</strong> if your child works anything out on paper while answering, send us a photo of the rough work too — it helps Swati spot exactly where the gaps are, not just the final answers.</p>
+        <p id="worksheetPrompt"><strong>Optional, but encouraged:</strong> if your child works anything out on paper while answering, send us a photo of the rough work too — it helps Swati spot exactly where the gaps are, not just the final answers.</p>
+        <a id="worksheetWhatsappLink" href="#" class="btn btn-primary" target="_blank" rel="noopener" style="display:none;">Send worksheet photos to Swati →</a>
       </div>
 
       <div class="embed-card reveal">
@@ -52,11 +53,6 @@
         Form not loading? <a id="fallbackLink" href="#" target="_blank" rel="noopener">Open it in a new tab</a>,
         or <a href="https://wa.me/919810947427?text=Hi%2C%20I%27d%20like%20to%20start%20the%20free%20Foundational%20Edge%20skill%20check">message Swati on WhatsApp instead</a>.
       </p>
-
-      <div class="worksheet-cta reveal">
-        <p><strong>Done with the skill check?</strong> If your child worked anything out on paper, send us those photos now — it only takes a second.</p>
-        <a id="worksheetWhatsappLink" href="#" class="btn btn-primary" target="_blank" rel="noopener">Send worksheet photos to Swati →</a>
-      </div>
     </div>
   </section>
 </main>
@@ -104,8 +100,25 @@
     : '';
 
   document.getElementById('tierEyebrow').textContent = 'Free skill check · ' + entry.label;
-  document.getElementById('formFrame').src = entry.url + (prefillQuery ? prefillQuery + '&embedded=true' : '?embedded=true');
+  var formFrame = document.getElementById('formFrame');
   document.getElementById('fallbackLink').href = entry.url + prefillQuery;
+
+  // ---- Detect submission via the iframe's second "load" event. Google Forms gives embeds no
+  // official completion callback, but submitting one navigates the iframe (same-origin-restricted,
+  // so we can't read it) from the question page to a "your response has been recorded" page — a
+  // real navigation, which fires another load event. The first load is just the form appearing, so
+  // only react from the second one onward. Not airtight (an unusual form flow with an extra
+  // internal redirect could trigger it early), but it's the standard approach for this. ----
+  var formLoadCount = 0;
+  formFrame.addEventListener('load', function(){
+    formLoadCount++;
+    if(formLoadCount > 1){
+      formFrame.style.height = '480px';
+      document.getElementById('worksheetPrompt').innerHTML = '<strong>Done with the skill check?</strong> If your child worked anything out on paper, send us those photos now — it only takes a second.';
+      document.getElementById('worksheetWhatsappLink').style.display = '';
+    }
+  });
+  formFrame.src = entry.url + (prefillQuery ? prefillQuery + '&embedded=true' : '?embedded=true');
 
   // ---- "Send worksheet photos to Swati" WhatsApp deep link. There's no file upload here by
   // design — WhatsApp can't be pre-loaded with attachments via a link, so this just pre-fills the
