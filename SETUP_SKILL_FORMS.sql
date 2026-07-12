@@ -3,19 +3,16 @@
 -- (https://supabase.com/dashboard/project/wwmbpgtddsyettfdakbe).
 --
 -- This is an admin-managed catalog of the Google Forms used for skill
--- checks — one row per (grade, skill type, test type) combination. It is
--- NOT yet wired into the live site (practice-test.html / skill-check.html
--- still use the hardcoded TIER_FORMS map) — this just creates the table so
--- you can start populating it via the Supabase Table Editor or SQL.
+-- checks — one row per (grade, skill type, test type) combination. You
+-- manage rows via the Supabase Table Editor or SQL editor.
 --
--- RLS is enabled with no policies at all, so `anon` (the site's public key)
--- has zero access to this table -- only you, via the Supabase dashboard
--- (which authenticates as you, not as anon), can read or write it. That's
--- deliberate: nothing here needs to be public yet. If/when you want the
--- live site to pick forms from this table automatically, say so and I'll
--- add a narrow security-definer function (same pattern as
--- lookup_registration/register_child in SETUP.sql) that exposes only
--- exactly what a page needs -- never a raw table read.
+-- RLS is enabled with no direct policies for anon -- the site can only
+-- reach this table through get_active_skill_form() below, a narrow
+-- security-definer function (same pattern as lookup_registration /
+-- register_child in SETUP.sql) that returns only form_url + regid_entry
+-- for the single active row matching a grade, never a raw table read.
+-- practice-test.html / skill-check.html use this to pick the free-test
+-- form dynamically instead of a hardcoded map.
 
 create table if not exists skill_check_forms (
   id uuid primary key default gen_random_uuid(),
@@ -54,3 +51,30 @@ alter table skill_check_forms enable row level security;
 
 create index if not exists skill_check_forms_lookup_idx
   on skill_check_forms (grade, skill_type, type, active);
+
+-- get_active_skill_form(): the only way anon can read this table. Returns
+-- the form for the free skill check matching a grade -- active rows only,
+-- and when more than one matches, the one with the latest publish_date
+-- wins. Intentionally scoped to type = 'Free-Test' (the only type the
+-- public site currently offers a form for; Weekly/Monthly/Competition
+-- rows are for future admin-side use, not yet exposed here) and skill_type
+-- = 'all' or 'logical' is NOT filtered -- if you later add more than one
+-- skill_type per grade for Free-Test, add a p_skill_type param here rather
+-- than changing this comment and hoping.
+create or replace function public.get_active_skill_form(p_grade text)
+returns table (form_url text, regid_entry text)
+language sql
+security definer
+set search_path = public
+as $$
+  select f.form_url, f.regid_entry
+  from skill_check_forms f
+  where f.grade = p_grade
+    and f.active = true
+    and f.type = 'Free-Test'
+  order by f.publish_date desc
+  limit 1;
+$$;
+
+revoke all on function public.get_active_skill_form(text) from public;
+grant execute on function public.get_active_skill_form(text) to anon;

@@ -45,11 +45,18 @@
         <a id="worksheetWhatsappLink" href="#" class="btn btn-primary" target="_blank" rel="noopener" style="display:none;">Send worksheet photos to Swati →</a>
       </div>
 
-      <div class="embed-card reveal">
+      <p id="loadingState" class="embed-status">Finding the right skill check for this grade…</p>
+
+      <p id="noFormState" class="embed-status" style="display:none;">
+        We don't have an active skill check for this grade right now —
+        <a href="https://wa.me/919810947427?text=Hi%2C%20I%27d%20like%20to%20start%20the%20free%20Foundational%20Edge%20skill%20check">message Swati on WhatsApp</a> and she'll sort you out directly.
+      </p>
+
+      <div id="embedCard" class="embed-card reveal" style="display:none;">
         <iframe id="formFrame" src="" title="Foundational Edge skill check" loading="lazy">Loading…</iframe>
       </div>
 
-      <p class="embed-fallback">
+      <p id="embedFallback" class="embed-fallback" style="display:none;">
         Form not loading? <a id="fallbackLink" href="#" target="_blank" rel="noopener">Open it in a new tab</a>,
         or <a href="https://wa.me/919810947427?text=Hi%2C%20I%27d%20like%20to%20start%20the%20free%20Foundational%20Edge%20skill%20check">message Swati on WhatsApp instead</a>.
       </p>
@@ -74,68 +81,95 @@
 
 <script src="js/main.js"></script>
 <script>
-  // ---- Embedded Google Forms, tiered by grade band. Each entry is the plain "view" URL for the
-  // form, plus the entry.NNNNNN field ID of that form's "Registration ID" question (get this via
-  // the form's "⋮" menu → Get pre-filled link) so we can pre-fill it from the reg ID passed in the
-  // ?regId= query param. ?embedded=true is appended automatically for the iframe, and the fallback
-  // "open in new tab" link uses the un-embedded version.
-  // NOTE: all three tiers currently share the same placeholder form (logical-reasoning sample
-  // questions) — replace tier1/tier3's url below with their own grade-specific forms (and their
-  // own regIdEntry) once you've created them; tier2 is already the real one you sent. ----
-  var SHARED_PLACEHOLDER_FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSc099Yj6XDImZbW5oBZLuLBRhnJbcy7P4WT3XMvl8-KxJ1uQw/viewform';
-  var SHARED_REGID_ENTRY = 'entry.743818152';
-  var TIER_FORMS = {
-    '1': { label: 'Grades 3–4', url: SHARED_PLACEHOLDER_FORM, regIdEntry: SHARED_REGID_ENTRY },
-    '2': { label: 'Grades 5–6', url: SHARED_PLACEHOLDER_FORM, regIdEntry: SHARED_REGID_ENTRY },
-    '3': { label: 'Grades 7–8', url: SHARED_PLACEHOLDER_FORM, regIdEntry: SHARED_REGID_ENTRY }
-  };
+  // ---- Supabase: looks up the active Free-Test form for this exact grade via a security-definer
+  // RPC (get_active_skill_form, see SETUP_SKILL_FORMS.sql) rather than a raw table read — anon has
+  // no direct access to skill_check_forms at all. Same anon key as practice-test.html. ----
+  var SUPABASE_URL = 'https://wwmbpgtddsyettfdakbe.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3bWJwZ3RkZHN5ZXR0ZmRha2JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjA4MDksImV4cCI6MjA5OTMzNjgwOX0.owfmZtMW83G3HGW69ofbSbisRBMHgK7AX7QpSl-xRO8';
+  var RPC_ACTIVE_FORM_URL = SUPABASE_URL + '/rest/v1/rpc/get_active_skill_form';
 
   var params = new URLSearchParams(window.location.search);
-  var tier = params.get('tier');
+  var grade = params.get('grade');
   var regId = params.get('regId');
-  var entry = TIER_FORMS[tier] || TIER_FORMS['2'];
 
-  var prefillQuery = (regId && entry.regIdEntry)
-    ? '?' + entry.regIdEntry + '=' + encodeURIComponent(regId)
-    : '';
-
-  document.getElementById('tierEyebrow').textContent = 'Free skill check · ' + entry.label;
-  var formFrame = document.getElementById('formFrame');
-  document.getElementById('fallbackLink').href = entry.url + prefillQuery;
-
-  // ---- Detect submission via the iframe's second "load" event. Google Forms gives embeds no
-  // official completion callback, but submitting one navigates the iframe (same-origin-restricted,
-  // so we can't read it) from the question page to a "your response has been recorded" page — a
-  // real navigation, which fires another load event. The first load is just the form appearing, so
-  // only react from the second one onward. Not airtight (an unusual form flow with an extra
-  // internal redirect could trigger it early), but it's the standard approach for this. ----
-  var formLoadCount = 0;
-  formFrame.addEventListener('load', function(){
-    formLoadCount++;
-    if(formLoadCount > 1){
-      formFrame.style.height = '480px';
-      document.getElementById('worksheetPrompt').innerHTML = '<strong>Done with the skill check?</strong> If your child worked anything out on paper, send us those photos now — it only takes a second.';
-      document.getElementById('worksheetWhatsappLink').style.display = '';
-    }
-  });
-  formFrame.src = entry.url + (prefillQuery ? prefillQuery + '&embedded=true' : '?embedded=true');
-
-  // ---- "Send worksheet photos to Swati" WhatsApp deep link. There's no file upload here by
-  // design — WhatsApp can't be pre-loaded with attachments via a link, so this just pre-fills the
-  // message text with enough detail (registration ID, child's name, grade tier) for Swati to match
-  // the photos to the right registration once the parent attaches and sends them in the chat. ----
   function prettifyFromRegId(id){
     if(!id) return '';
     var namePart = id.split('@')[0] || '';
     return namePart.replace(/([a-z0-9])([A-Z])/g, '$1 $2').trim();
   }
 
-  var childName = prettifyFromRegId(regId);
-  var waTextParts = ["Hi Swati, I'd like to share " + (childName ? 'my child ' + childName + "'s" : "my child's") + ' rough worksheet photos for the free skill check.'];
-  if (regId) waTextParts.push('Registration ID: ' + regId + '.');
-  waTextParts.push('(' + entry.label + ')');
-  var waText = waTextParts.join(' ');
-  document.getElementById('worksheetWhatsappLink').href = 'https://wa.me/919810947427?text=' + encodeURIComponent(waText);
+  function showNoForm(){
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('noFormState').style.display = '';
+  }
+
+  function showForm(formUrl, regIdEntry){
+    var gradeLabel = grade ? 'Grade ' + grade : 'Free skill check';
+    document.getElementById('tierEyebrow').textContent = 'Free skill check · ' + gradeLabel;
+
+    var prefillQuery = (regId && regIdEntry) ? '?' + regIdEntry + '=' + encodeURIComponent(regId) : '';
+    var formFrame = document.getElementById('formFrame');
+    document.getElementById('fallbackLink').href = formUrl + prefillQuery;
+
+    // ---- Detect submission via the iframe's second "load" event. Google Forms gives embeds no
+    // official completion callback, but submitting one navigates the iframe (same-origin-
+    // restricted, so we can't read it) from the question page to a "your response has been
+    // recorded" page — a real navigation, which fires another load event. The first load is just
+    // the form appearing, so only react from the second one onward. Not airtight (an unusual form
+    // flow with an extra internal redirect could trigger it early), but it's the standard approach
+    // for this. ----
+    var formLoadCount = 0;
+    formFrame.addEventListener('load', function(){
+      formLoadCount++;
+      if(formLoadCount > 1){
+        formFrame.style.height = '480px';
+        document.getElementById('worksheetPrompt').innerHTML = '<strong>Done with the skill check?</strong> If your child worked anything out on paper, send us those photos now — it only takes a second.';
+        document.getElementById('worksheetWhatsappLink').style.display = '';
+      }
+    });
+    formFrame.src = formUrl + (prefillQuery ? prefillQuery + '&embedded=true' : '?embedded=true');
+
+    // ---- "Send worksheet photos to Swati" WhatsApp deep link. There's no file upload here by
+    // design — WhatsApp can't be pre-loaded with attachments via a link, so this just pre-fills
+    // the message text with enough detail (registration ID, child's name, grade) for Swati to
+    // match the photos to the right registration once the parent attaches and sends them. ----
+    var childName = prettifyFromRegId(regId);
+    var waTextParts = ["Hi Swati, I'd like to share " + (childName ? 'my child ' + childName + "'s" : "my child's") + ' rough worksheet photos for the free skill check.'];
+    if (regId) waTextParts.push('Registration ID: ' + regId + '.');
+    waTextParts.push('(' + gradeLabel + ')');
+    document.getElementById('worksheetWhatsappLink').href = 'https://wa.me/919810947427?text=' + encodeURIComponent(waTextParts.join(' '));
+
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('embedCard').style.display = '';
+    document.getElementById('embedFallback').style.display = '';
+  }
+
+  if(!grade){
+    showNoForm();
+  } else {
+    fetch(RPC_ACTIVE_FORM_URL, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ p_grade: grade })
+    }).then(function(res){
+      if(!res.ok) throw new Error('lookup failed: ' + res.status);
+      return res.json();
+    }).then(function(rows){
+      var row = rows && rows[0];
+      if(row && row.form_url){
+        showForm(row.form_url, row.regid_entry);
+      } else {
+        showNoForm();
+      }
+    }).catch(function(err){
+      console.error(err);
+      showNoForm();
+    });
+  }
 </script>
 
 </body>
