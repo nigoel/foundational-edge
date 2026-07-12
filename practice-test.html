@@ -152,14 +152,12 @@
 </div>
 
 <script>
-  // ---- Skill-check destinations, tiered by grade band. Each now points to skill-check.html,
-  // which embeds the actual Google Form for that tier (see TIER_FORMS in skill-check.html) —
-  // update the form URLs there, not here. ----
-  var TIER_LINKS = {
-    tier1: "skill-check.html?tier=1",  // Grades 3-4
-    tier2: "skill-check.html?tier=2",  // Grades 5-6
-    tier3: "skill-check.html?tier=3"   // Grades 7-8
-  };
+  // ---- Skill-check destination: skill-check.html looks up the active form for the exact grade
+  // itself (via the get_active_skill_form RPC, see SETUP_SKILL_FORMS.sql) -- this just builds the
+  // link with the grade on it. ----
+  function skillCheckLink(grade){
+    return "skill-check.html?grade=" + encodeURIComponent(grade);
+  }
 
   // ---- Supabase (registrations table). Uses the public anon key by design — this is normal for
   // Supabase's anon-key model. `anon` has NO direct table privileges at all (no select, insert, or
@@ -222,12 +220,6 @@
     return { id: row.id, tierLink: row.tier_link };
   }
 
-  function tierForGrade(grade){
-    var g = parseInt(grade, 10);
-    if(g <= 4) return TIER_LINKS.tier1;
-    if(g <= 6) return TIER_LINKS.tier2;
-    return TIER_LINKS.tier3;
-  }
   function normalizeName(s){ return (s || '').trim().toLowerCase(); }
   function normalizePhone(s){ return (s || '').replace(/[^0-9]/g, ''); }
   function makeRegId(name, phone){
@@ -279,7 +271,7 @@
       competitions: document.getElementById('competitions').value,
       expectations: document.getElementById('expectations').value,
       whatsapp: whatsapp,
-      tierLink: tierForGrade(grade)
+      tierLink: skillCheckLink(grade)
     };
     btn.disabled = true; btn.textContent = 'Saving\u2026';
     upsertRegistration(record).then(function(){
