@@ -218,6 +218,15 @@
         imgWrap.className = 'quiz-q-image';
         imgWrap.innerHTML = q.image_svg; // trusted content from our own Supabase table, not user input
         qDiv.appendChild(imgWrap);
+      } else if(q.image_url){
+        var photoWrap = document.createElement('div');
+        photoWrap.className = 'quiz-q-image';
+        var photoImg = document.createElement('img');
+        photoImg.src = q.image_url;
+        photoImg.alt = ''; // decorative relative to the question text, which already describes it
+        photoImg.loading = 'lazy';
+        photoWrap.appendChild(photoImg);
+        qDiv.appendChild(photoWrap);
       }
 
       var optsDiv = document.createElement('div');
