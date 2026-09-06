@@ -134,6 +134,7 @@
   var grade = params.get('grade');
   var regId = params.get('regId');
   var previewQuizId = params.get('previewQuizId'); // admin preview: show this exact quiz, bypassing get_active_quiz
+  var isPreviewMode = !!previewQuizId; // preview lets an admin see the quiz, but never actually submit an attempt
 
   function prettifyFromRegId(id){
     if(!id) return '';
@@ -307,7 +308,20 @@
     document.getElementById('quizProgress').textContent =
       'Section ' + (pageIdx + 1) + ' of ' + pages.length + ' · Grade ' + grade;
     document.getElementById('quizBackBtn').style.display = pageIdx > 0 ? '' : 'none';
-    document.getElementById('quizNextBtn').textContent = isLastPage ? 'Submit skill check →' : 'Next section →';
+
+    var nextBtn = document.getElementById('quizNextBtn');
+    if(isLastPage && isPreviewMode){
+      // Admin preview: never let this reach an actual submission — no attempt should ever be
+      // recorded from a preview. The button is visibly disabled rather than just silently
+      // no-op'ing on click, so it's obvious this is intentional, not broken.
+      nextBtn.textContent = 'Preview only — nothing to submit';
+      nextBtn.disabled = true;
+      document.getElementById('quizSubmitNote').textContent = "This is a preview. Answers aren't graded and no attempt is recorded.";
+    } else {
+      nextBtn.textContent = isLastPage ? 'Submit skill check →' : 'Next section →';
+      nextBtn.disabled = false;
+      document.getElementById('quizSubmitNote').textContent = 'Answer every question on this page to continue.';
+    }
     document.getElementById('quizError').style.display = 'none';
 
     // Scroll the new section into view so paging feels like moving to a fresh page, not a jump-cut.
@@ -483,6 +497,13 @@
     var isLastPage = currentPage === pages.length - 1;
     if(!isLastPage){
       renderPage(currentPage + 1);
+      return;
+    }
+
+    if(isPreviewMode){
+      // Belt-and-braces: even if this got clicked (e.g. the disabled attribute was somehow
+      // bypassed), an admin preview must never actually call submit_quiz_attempt — that would
+      // record a real attempt row. Preview stops here, full stop.
       return;
     }
 
