@@ -223,6 +223,10 @@
       })
     }).then(function(res){
       if(!res.ok) throw new Error('Supabase insert failed: ' + res.status);
+      return res.json();
+    }).then(function(rows){
+      var row = rows && rows[0];
+      return { wasExisting: !!(row && row.was_existing) };
     });
   }
 
@@ -309,12 +313,12 @@
     document.getElementById('resultPanel').style.display = 'none';
   }
 
-  function showResult(record, isReturning){
+  function showResult(record, alreadyRegistered){
     document.getElementById('newForm').style.display = 'none';
     document.getElementById('returningForm').style.display = 'none';
-    document.getElementById('resultHeading').textContent = isReturning ? 'Welcome back!' : "You're registered!";
-    document.getElementById('resultSub').textContent = isReturning
-      ? 'Here is your skill check link again.'
+    document.getElementById('resultHeading').textContent = alreadyRegistered ? 'You were already registered!' : "You're registered!";
+    document.getElementById('resultSub').textContent = alreadyRegistered
+      ? "We found an existing registration with these details and updated it — here's your skill check link again."
       : "Here's your registration ID — save it to look this up again later.";
     document.getElementById('regIdBox').textContent = record.id;
     // Append regId so skill-check.html can pre-fill the "Registration ID" question on the
@@ -358,8 +362,8 @@
       tierLink: skillCheckLink(grade)
     };
     btn.disabled = true; btn.textContent = 'Saving\u2026';
-    upsertRegistration(record).then(function(){
-      showResult(record, false);
+    upsertRegistration(record).then(function(result){
+      showResult(record, result.wasExisting);
     }).catch(function(err){
       console.error(err);
       errEl.style.display = 'block';
