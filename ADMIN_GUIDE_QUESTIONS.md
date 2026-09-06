@@ -7,19 +7,18 @@ changes, no redeploying the site.
 
 ## One-time setup (developer does this once)
 
-Run `SETUP_QUESTIONS.sql`, then `SETUP_QUESTIONS_IMAGES.sql`, then
-`SETUP_QUESTIONS_STORAGE.sql`, in that order, in the Supabase SQL editor
-for project `wwmbpgtddsyettfdakbe`. Together these create the `questions`
-table (and the `quiz_attempts` table that stores results), the two
-functions the website uses to read questions and grade submissions, a
-public Storage bucket called `question-images` for uploaded diagrams/
-photos, and seed the initial Grade 4 and Grade 5 questions.
+Run `SETUP_QUESTIONS.sql`, then `SETUP_QUESTIONS_STORAGE.sql`, in that order,
+in the Supabase SQL editor for project `wwmbpgtddsyettfdakbe`. Together
+these create the `questions` table (and the `quiz_attempts` table that
+stores results), the two functions the website uses to read questions and
+grade submissions, a public Storage bucket called `question-images` for
+uploaded diagrams/photos, and seed the initial Grade 4 and Grade 5
+questions.
 
 ## Adding an image to a question (ops/teacher does this ongoing)
 
-A question can show either a hand-drawn diagram (`image_svg`, set up by a
-developer) or an **uploaded photo/screenshot** (`image_url`) — whichever
-fits. To add an uploaded image:
+Every image is an uploaded file — there's no code-based diagram option, so
+this is always the same simple flow:
 
 1. Go to the [Supabase Storage section](https://supabase.com/dashboard/project/wwmbpgtddsyettfdakbe/storage/buckets/question-images) → `question-images` bucket.
 2. Click **Upload file** and choose your image (JPG, PNG, or WebP — keep
@@ -29,12 +28,11 @@ fits. To add an uploaded image:
    since the bucket is public — no extra sharing step needed, unlike
    Google Drive).
 4. Go to the `questions` table → open the row for that question → paste
-   the copied URL into `image_url`. Leave `image_svg` empty for that row.
+   the copied URL into `image_url`.
 5. Save. The image appears on the site immediately — no deploy needed.
 
 To replace an image, just upload a new file and update the URL in the
-same way. To remove an image from a question, clear its `image_url` (or
-`image_svg`) field.
+same way. To remove an image from a question, clear its `image_url` field.
 
 ## Adding a new question (ops/teacher does this ongoing)
 
@@ -51,7 +49,7 @@ same way. To remove an image from a question, clear its `image_url` (or
    | `option_a` / `option_b` / `option_c` / `option_d` | the four answer choices |
    | `correct_answer` | `A`, `B`, `C`, or `D` — must match one of the options above |
    | `explanation` | shown to the student after they submit, explaining the right answer |
-   | `image_svg` / `image_url` | optional — see "Adding an image to a question" above. Leave both empty for a text-only question. |
+   | `image_url` | optional — see "Adding an image to a question" above. Leave empty for a text-only question. |
    | `active` | `true` to make it live, `false` to hide it without deleting |
 
 3. Save. The question appears on the site immediately — no deploy needed.

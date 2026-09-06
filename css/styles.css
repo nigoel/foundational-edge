@@ -579,7 +579,6 @@
     background:var(--paper); border:1px solid var(--line); border-radius:6px;
     padding:14px; margin:2px 0 16px; display:flex; justify-content:center;
   }
-  .quiz-q-image svg{ width:100%; max-width:360px; height:auto; display:block; }
   .quiz-q-image img{ width:100%; max-width:360px; height:auto; display:block; border-radius:4px; }
 
   /* ---------- quiz page transition ---------- */

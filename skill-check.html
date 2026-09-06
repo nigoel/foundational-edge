@@ -213,12 +213,7 @@
       qText.textContent = absoluteIndex(pageIdx, qIdxInPage) + '. ' + q.question_text;
       qDiv.appendChild(qText);
 
-      if(q.image_svg){
-        var imgWrap = document.createElement('div');
-        imgWrap.className = 'quiz-q-image';
-        imgWrap.innerHTML = q.image_svg; // trusted content from our own Supabase table, not user input
-        qDiv.appendChild(imgWrap);
-      } else if(q.image_url){
+      if(q.image_url){
         var photoWrap = document.createElement('div');
         photoWrap.className = 'quiz-q-image';
         var photoImg = document.createElement('img');
