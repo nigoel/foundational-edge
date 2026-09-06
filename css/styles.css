@@ -590,3 +590,10 @@
 
   /* ---------- quiz results: encouraging message ---------- */
   .quiz-score-msg{ font-size:15px; color:var(--ink); margin-top:10px; font-weight:500; }
+
+  /* ---------- phone field: country-code select + digits-only number ---------- */
+  .phone-row{ display:flex; gap:10px; max-width:420px; }
+  .phone-row .gform-select{ flex:0 0 128px; max-width:128px; }
+  .phone-row .gform-select.code-other, .phone-row .gform-textinput.code-other{ flex:0 0 90px; max-width:90px; }
+  .phone-row .gform-textinput{ flex:1 1 auto; }
+  .phone-hint{ font-size:12px; color:var(--ink-soft); margin-top:6px; }
