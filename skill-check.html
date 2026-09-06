@@ -52,6 +52,11 @@
         <a href="https://wa.me/919810947427?text=Hi%2C%20I%27d%20like%20to%20start%20the%20free%20Foundational%20Edge%20skill%20check">message Swati on WhatsApp</a> and she'll sort you out directly.
       </p>
 
+      <div id="registrationRequiredState" style="display:none;">
+        <p class="embed-status" id="registrationRequiredMsg"></p>
+        <p style="text-align:center;"><a href="practice-test.html" class="btn btn-primary">Register to take the skill check →</a></p>
+      </div>
+
       <!-- ---- Attempt status: shown when past attempts exist for this reg_id + grade, before ---- -->
       <!-- ---- letting the student start a fresh one. Populated from get_quiz_attempts(). ---- -->
       <div id="attemptStatusPanel" style="display:none;">
@@ -121,6 +126,9 @@
   var RPC_GET_QUESTIONS = SUPABASE_URL + '/rest/v1/rpc/get_quiz_questions';
   var RPC_SUBMIT_ATTEMPT = SUPABASE_URL + '/rest/v1/rpc/submit_quiz_attempt';
   var RPC_GET_ATTEMPTS = SUPABASE_URL + '/rest/v1/rpc/get_quiz_attempts';
+  // Reuses lookup_registration() from SETUP.sql (already used by practice-test.html) to confirm
+  // this regId corresponds to a real registration before letting anyone take the quiz.
+  var RPC_LOOKUP_REGISTRATION = SUPABASE_URL + '/rest/v1/rpc/lookup_registration';
 
   var params = new URLSearchParams(window.location.search);
   var grade = params.get('grade');
@@ -152,6 +160,15 @@
     document.getElementById('loadingState').style.display = 'none';
     document.getElementById('noFormState').style.display = '';
     document.getElementById('worksheetNote').style.display = 'none';
+  }
+
+  function showRegistrationRequired(reason){
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('worksheetNote').style.display = 'none';
+    document.getElementById('registrationRequiredMsg').textContent = reason === 'missing'
+      ? "This link is missing a registration ID, so we can't confirm who's taking the skill check."
+      : "We couldn't find a registration matching this link.";
+    document.getElementById('registrationRequiredState').style.display = '';
   }
 
   function setupWorksheetWhatsapp(gradeLabel){
@@ -532,48 +549,65 @@
     if(previewQuizId){
       // Admin preview link: show this exact quiz regardless of whether it's the currently
       // "active" one for this grade (e.g. previewing a draft or a retired quiz). Skips
-      // get_active_quiz entirely, and skips attempt tracking (a preview shouldn't burn a real
-      // attempt against anyone's regId, and "admin" isn't a real registration anyway).
+      // get_active_quiz entirely, skips attempt tracking, and skips the registration check
+      // below — a preview isn't a real student taking the quiz, so there's nothing to verify.
       quizId = previewQuizId;
       maxAttempts = Infinity;
       loadAndRenderQuiz();
+    } else if(!regId){
+      // No registration ID on the link at all — the page itself still loads (nav/footer work
+      // fine), but taking the quiz is blocked until they register.
+      showRegistrationRequired('missing');
     } else {
-      // Resolve which quiz row applies to this grade first (the active, non-expired
-      // Free-Skill-Test with the latest publish_date) — everything downstream (questions,
-      // attempts, the attempt cap) is keyed off quiz_id, not the bare grade.
-      supabaseRpc(RPC_GET_ACTIVE_QUIZ, { p_grade: grade, p_quiz_type: 'Free-Skill-Test' }).then(function(rows){
-        var quiz = rows && rows[0];
-        if(!quiz){
-          showNoForm();
+      // Confirm this regId corresponds to a real registration before allowing an attempt.
+      // Navigation to this page is always allowed; only the actual quiz-taking is gated.
+      supabaseRpc(RPC_LOOKUP_REGISTRATION, { p_id: regId, p_name: null, p_phone: null }).then(function(rows){
+        var found = rows && rows[0];
+        if(!found){
+          showRegistrationRequired('invalid');
           return;
         }
-        quizId = quiz.quiz_id;
-        maxAttempts = quiz.max_attempts;
+        resolveAndLoadQuiz();
+      }).catch(function(err){
+        console.error(err);
+        // Fail closed: if we can't even confirm the registration is valid, don't let the
+        // attempt through — but the page (and a path to register) still loads normally.
+        showRegistrationRequired('invalid');
+      });
+    }
+  }
 
-        if(regId){
-          // Check for past attempts first so a student who already took this skill check sees
-          // their history/review options instead of silently starting over. Without a regId
-          // (shouldn't normally happen — practice-test.html always includes one) attempts
-          // can't be tracked, so just go straight to the quiz, same as before this feature
-          // existed.
-          supabaseRpc(RPC_GET_ATTEMPTS, { p_reg_id: regId, p_quiz_id: quizId }).then(function(attempts){
-            if(attempts && attempts.length > 0){
-              renderAttemptStatus(attempts);
-            } else {
-              loadAndRenderQuiz();
-            }
-          }).catch(function(err){
-            console.error(err);
-            loadAndRenderQuiz(); // don't let an attempt-history hiccup block taking the quiz
-          });
+  // Resolves the active quiz for this grade, then checks attempt history before loading the
+  // quiz — split out from the init block above so it only runs once the regId is confirmed valid.
+  function resolveAndLoadQuiz(){
+    // Resolve which quiz row applies to this grade first (the active, non-expired
+    // Free-Skill-Test with the latest publish_date) — everything downstream (questions,
+    // attempts, the attempt cap) is keyed off quiz_id, not the bare grade.
+    supabaseRpc(RPC_GET_ACTIVE_QUIZ, { p_grade: grade, p_quiz_type: 'Free-Skill-Test' }).then(function(rows){
+      var quiz = rows && rows[0];
+      if(!quiz){
+        showNoForm();
+        return;
+      }
+      quizId = quiz.quiz_id;
+      maxAttempts = quiz.max_attempts;
+
+      // Check for past attempts first so a student who already took this skill check sees
+      // their history/review options instead of silently starting over.
+      supabaseRpc(RPC_GET_ATTEMPTS, { p_reg_id: regId, p_quiz_id: quizId }).then(function(attempts){
+        if(attempts && attempts.length > 0){
+          renderAttemptStatus(attempts);
         } else {
           loadAndRenderQuiz();
         }
       }).catch(function(err){
         console.error(err);
-        showNoForm();
+        loadAndRenderQuiz(); // don't let an attempt-history hiccup block taking the quiz
       });
-    }
+    }).catch(function(err){
+      console.error(err);
+      showNoForm();
+    });
   }
 </script>
 
