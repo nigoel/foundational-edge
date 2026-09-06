@@ -54,6 +54,7 @@
 
       <!-- ---- Quiz form: populated from Supabase get_quiz_questions(), one section per page ---- -->
       <form id="quizForm" style="display:none;">
+        <div id="quizProgressBar" class="quiz-progress-bar"></div>
         <div id="quizProgress" class="quiz-progress"></div>
         <div id="quizQuestions"></div>
         <div class="quiz-submit-bar">
@@ -69,6 +70,7 @@
         <div class="quiz-score-card">
           <div class="quiz-score-number" id="quizScoreNumber">0 / 0</div>
           <div class="quiz-score-label">Questions answered correctly</div>
+          <div class="quiz-score-msg" id="quizScoreMsg"></div>
         </div>
         <div id="quizReviewList"></div>
       </div>
@@ -146,6 +148,18 @@
   var answers = {};   // { question_id: 'A'|'B'|'C'|'D' }
   var currentPage = 0;
 
+  // Small visual touch so each section feels distinct rather than one long undifferentiated list.
+  var SECTION_ICONS = {
+    'Logical Reasoning': '🧠',
+    'Quantitative Aptitude': '🔢',
+    'Verbal Reasoning': '📚',
+    'Geometry & Spatial Reasoning': '📐',
+    'Paper Folding & Spatial Reasoning': '📄'
+  };
+  function sectionIcon(section){
+    return SECTION_ICONS[section] || '✏️';
+  }
+
   function groupIntoPages(qs){
     var result = [];
     qs.forEach(function(q){
@@ -166,15 +180,28 @@
     return count + qIdxInPage + 1;
   }
 
+  function renderProgressBar(activeIdx){
+    var bar = document.getElementById('quizProgressBar');
+    bar.innerHTML = '';
+    pages.forEach(function(p, idx){
+      var dot = document.createElement('div');
+      dot.className = 'quiz-progress-dot';
+      if(idx < activeIdx) dot.classList.add('done');
+      if(idx === activeIdx) dot.classList.add('active');
+      bar.appendChild(dot);
+    });
+  }
+
   function renderPage(pageIdx){
     currentPage = pageIdx;
     var page = pages[pageIdx];
     var container = document.getElementById('quizQuestions');
     container.innerHTML = '';
+    container.classList.remove('quiz-page-fade');
 
     var label = document.createElement('div');
     label.className = 'quiz-section-label';
-    label.textContent = page.section;
+    label.textContent = sectionIcon(page.section) + '  ' + page.section;
     container.appendChild(label);
 
     page.questions.forEach(function(q, qIdxInPage){
@@ -185,6 +212,13 @@
       qText.className = 'quiz-q-text';
       qText.textContent = absoluteIndex(pageIdx, qIdxInPage) + '. ' + q.question_text;
       qDiv.appendChild(qText);
+
+      if(q.image_svg){
+        var imgWrap = document.createElement('div');
+        imgWrap.className = 'quiz-q-image';
+        imgWrap.innerHTML = q.image_svg; // trusted content from our own Supabase table, not user input
+        qDiv.appendChild(imgWrap);
+      }
 
       var optsDiv = document.createElement('div');
       optsDiv.className = 'quiz-options';
@@ -221,15 +255,21 @@
       container.appendChild(qDiv);
     });
 
+    // Re-trigger the fade-in animation on every page change (removing then re-adding the class
+    // restarts a CSS animation; browsers no-op if the class never left).
+    void container.offsetWidth;
+    container.classList.add('quiz-page-fade');
+
     var isLastPage = pageIdx === pages.length - 1;
+    renderProgressBar(pageIdx);
     document.getElementById('quizProgress').textContent =
-      'Section ' + (pageIdx + 1) + ' of ' + pages.length + ' · ' + page.section + ' · Grade ' + grade;
+      'Section ' + (pageIdx + 1) + ' of ' + pages.length + ' · Grade ' + grade;
     document.getElementById('quizBackBtn').style.display = pageIdx > 0 ? '' : 'none';
     document.getElementById('quizNextBtn').textContent = isLastPage ? 'Submit skill check →' : 'Next section →';
     document.getElementById('quizError').style.display = 'none';
 
     // Scroll the new section into view so paging feels like moving to a fresh page, not a jump-cut.
-    document.getElementById('quizProgress').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.getElementById('quizProgressBar').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function currentPageAnswered(){
@@ -251,6 +291,13 @@
     document.getElementById('worksheetWhatsappLink').style.display = '';
 
     document.getElementById('quizScoreNumber').textContent = payload.score + ' / ' + payload.total;
+
+    var pct = payload.total > 0 ? (payload.score / payload.total) : 0;
+    var msg;
+    if(pct >= 0.85) msg = "Excellent work! That's a strong result across the board.";
+    else if(pct >= 0.6) msg = "Solid effort — a clear sense of where to focus next.";
+    else msg = "A good starting point — this pinpoints exactly where to build from.";
+    document.getElementById('quizScoreMsg').textContent = msg;
 
     var list = document.getElementById('quizReviewList');
     list.innerHTML = '';
