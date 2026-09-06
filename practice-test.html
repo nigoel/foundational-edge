@@ -126,7 +126,7 @@
       <div class="gform-card">
         <div class="gform-q">
           <div class="qtext">Registration ID</div>
-          <input class="gform-textinput" id="lookupRegId" type="text" placeholder="e.g. RiyaSharma@919876543210" style="max-width:320px;">
+          <input class="gform-textinput" id="lookupRegId" type="text" placeholder="e.g. RiyaSharma@9876543210" style="max-width:320px;">
         </div>
       </div>
 
@@ -168,7 +168,7 @@
     <div class="gform-thanks" id="resultPanel">
       <h2 id="resultHeading">You're registered!</h2>
       <p id="resultSub">Here's your registration ID — save it to look this up again later.</p>
-      <div class="regid-box" id="regIdBox">RiyaSharma@919876543210</div>
+      <div class="regid-box" id="regIdBox">RiyaSharma@9876543210</div>
       <p><a id="continueLink" href="#" class="btn btn-primary" style="margin-top:6px;">Go to your skill check →</a></p>
       <p><a href="https://wa.me/919810947427?text=Hi%2C%20I%27d%20like%20to%20start%20the%20free%20Foundational%20Edge%20skill%20check" class="btn btn-ghost" style="margin-top:10px;">Message Swati on WhatsApp instead</a></p>
     </div>
@@ -345,7 +345,7 @@
       return;
     }
     var whatsapp = code + number;
-    var regId = makeRegId(childName, whatsapp);
+    var regId = makeRegId(childName, number); // regId omits the country code — just name + local number
     var record = {
       id: regId,
       childName: childName,
