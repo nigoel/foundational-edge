@@ -52,13 +52,15 @@
         <a href="https://wa.me/919810947427?text=Hi%2C%20I%27d%20like%20to%20start%20the%20free%20Foundational%20Edge%20skill%20check">message Swati on WhatsApp</a> and she'll sort you out directly.
       </p>
 
-      <!-- ---- Quiz form: populated from Supabase get_quiz_questions() ---- -->
+      <!-- ---- Quiz form: populated from Supabase get_quiz_questions(), one section per page ---- -->
       <form id="quizForm" style="display:none;">
+        <div id="quizProgressBar" class="quiz-progress-bar"></div>
         <div id="quizProgress" class="quiz-progress"></div>
         <div id="quizQuestions"></div>
         <div class="quiz-submit-bar">
-          <span class="quiz-submit-note" id="quizSubmitNote">Answer every question, then submit.</span>
-          <button type="submit" class="btn btn-primary" id="quizSubmitBtn">Submit skill check →</button>
+          <button type="button" class="btn btn-ghost" id="quizBackBtn" style="display:none;">← Back</button>
+          <span class="quiz-submit-note" id="quizSubmitNote">Answer every question on this page to continue.</span>
+          <button type="button" class="btn btn-primary" id="quizNextBtn">Next section →</button>
         </div>
         <p id="quizError" class="quiz-error" style="display:none;"></p>
       </form>
@@ -68,6 +70,7 @@
         <div class="quiz-score-card">
           <div class="quiz-score-number" id="quizScoreNumber">0 / 0</div>
           <div class="quiz-score-label">Questions answered correctly</div>
+          <div class="quiz-score-msg" id="quizScoreMsg"></div>
         </div>
         <div id="quizReviewList"></div>
       </div>
@@ -140,46 +143,103 @@
     document.getElementById('worksheetWhatsappLink').href = 'https://wa.me/919810947427?text=' + encodeURIComponent(waTextParts.join(' '));
   }
 
-  var questions = []; // full list from get_quiz_questions
+  var questions = []; // full flat list from get_quiz_questions, in order_num order
+  var pages = [];     // grouped by section: [{ section, questions: [...] }, ...]
   var answers = {};   // { question_id: 'A'|'B'|'C'|'D' }
+  var currentPage = 0;
 
-  function renderQuiz(qs){
-    questions = qs;
+  // Small visual touch so each section feels distinct rather than one long undifferentiated list.
+  var SECTION_ICONS = {
+    'Logical Reasoning': '🧠',
+    'Quantitative Aptitude': '🔢',
+    'Verbal Reasoning': '📚',
+    'Geometry & Spatial Reasoning': '📐',
+    'Paper Folding & Spatial Reasoning': '📄'
+  };
+  function sectionIcon(section){
+    return SECTION_ICONS[section] || '✏️';
+  }
+
+  function groupIntoPages(qs){
+    var result = [];
+    qs.forEach(function(q){
+      var last = result[result.length - 1];
+      if(!last || last.section !== q.section){
+        result.push({ section: q.section, questions: [q] });
+      } else {
+        last.questions.push(q);
+      }
+    });
+    return result;
+  }
+
+  // Absolute 1-based question number across all pages, for stable numbering as the student pages through.
+  function absoluteIndex(pageIdx, qIdxInPage){
+    var count = 0;
+    for(var i = 0; i < pageIdx; i++) count += pages[i].questions.length;
+    return count + qIdxInPage + 1;
+  }
+
+  function renderProgressBar(activeIdx){
+    var bar = document.getElementById('quizProgressBar');
+    bar.innerHTML = '';
+    pages.forEach(function(p, idx){
+      var dot = document.createElement('div');
+      dot.className = 'quiz-progress-dot';
+      if(idx < activeIdx) dot.classList.add('done');
+      if(idx === activeIdx) dot.classList.add('active');
+      bar.appendChild(dot);
+    });
+  }
+
+  function renderPage(pageIdx){
+    currentPage = pageIdx;
+    var page = pages[pageIdx];
     var container = document.getElementById('quizQuestions');
     container.innerHTML = '';
-    var lastSection = null;
+    container.classList.remove('quiz-page-fade');
 
-    qs.forEach(function(q, idx){
-      if(q.section !== lastSection){
-        var label = document.createElement('div');
-        label.className = 'quiz-section-label';
-        label.textContent = q.section;
-        container.appendChild(label);
-        lastSection = q.section;
-      }
+    var label = document.createElement('div');
+    label.className = 'quiz-section-label';
+    label.textContent = sectionIcon(page.section) + '  ' + page.section;
+    container.appendChild(label);
 
+    page.questions.forEach(function(q, qIdxInPage){
       var qDiv = document.createElement('div');
       qDiv.className = 'quiz-q';
 
       var qText = document.createElement('p');
       qText.className = 'quiz-q-text';
-      qText.textContent = (idx + 1) + '. ' + q.question_text;
+      qText.textContent = absoluteIndex(pageIdx, qIdxInPage) + '. ' + q.question_text;
       qDiv.appendChild(qText);
+
+      if(q.image_url){
+        var photoWrap = document.createElement('div');
+        photoWrap.className = 'quiz-q-image';
+        var photoImg = document.createElement('img');
+        photoImg.src = q.image_url;
+        photoImg.alt = ''; // decorative relative to the question text, which already describes it
+        photoImg.loading = 'lazy';
+        photoWrap.appendChild(photoImg);
+        qDiv.appendChild(photoWrap);
+      }
 
       var optsDiv = document.createElement('div');
       optsDiv.className = 'quiz-options';
 
       [['A', q.option_a], ['B', q.option_b], ['C', q.option_c], ['D', q.option_d]].forEach(function(pair){
         var letter = pair[0], text = pair[1];
-        var label = document.createElement('label');
-        label.className = 'quiz-option';
-        label.dataset.qid = q.id;
-        label.dataset.letter = letter;
+        var optLabel = document.createElement('label');
+        optLabel.className = 'quiz-option';
+        optLabel.dataset.qid = q.id;
+        optLabel.dataset.letter = letter;
+        if(answers[q.id] === letter) optLabel.classList.add('selected');
 
         var input = document.createElement('input');
         input.type = 'radio';
         input.name = 'q_' + q.id;
         input.value = letter;
+        if(answers[q.id] === letter) input.checked = true;
         input.addEventListener('change', function(){
           answers[q.id] = letter;
           optsDiv.querySelectorAll('.quiz-option').forEach(function(el){
@@ -190,16 +250,41 @@
         var span = document.createElement('span');
         span.textContent = letter + '. ' + text;
 
-        label.appendChild(input);
-        label.appendChild(span);
-        optsDiv.appendChild(label);
+        optLabel.appendChild(input);
+        optLabel.appendChild(span);
+        optsDiv.appendChild(optLabel);
       });
 
       qDiv.appendChild(optsDiv);
       container.appendChild(qDiv);
     });
 
-    document.getElementById('quizProgress').textContent = qs.length + ' questions · Grade ' + grade;
+    // Re-trigger the fade-in animation on every page change (removing then re-adding the class
+    // restarts a CSS animation; browsers no-op if the class never left).
+    void container.offsetWidth;
+    container.classList.add('quiz-page-fade');
+
+    var isLastPage = pageIdx === pages.length - 1;
+    renderProgressBar(pageIdx);
+    document.getElementById('quizProgress').textContent =
+      'Section ' + (pageIdx + 1) + ' of ' + pages.length + ' · Grade ' + grade;
+    document.getElementById('quizBackBtn').style.display = pageIdx > 0 ? '' : 'none';
+    document.getElementById('quizNextBtn').textContent = isLastPage ? 'Submit skill check →' : 'Next section →';
+    document.getElementById('quizError').style.display = 'none';
+
+    // Scroll the new section into view so paging feels like moving to a fresh page, not a jump-cut.
+    document.getElementById('quizProgressBar').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function currentPageAnswered(){
+    return pages[currentPage].questions.every(function(q){ return answers.hasOwnProperty(q.id); });
+  }
+
+  function renderQuiz(qs){
+    questions = qs;
+    pages = groupIntoPages(qs);
+    currentPage = 0;
+    renderPage(0);
     document.getElementById('loadingState').style.display = 'none';
     document.getElementById('quizForm').style.display = '';
   }
@@ -210,6 +295,13 @@
     document.getElementById('worksheetWhatsappLink').style.display = '';
 
     document.getElementById('quizScoreNumber').textContent = payload.score + ' / ' + payload.total;
+
+    var pct = payload.total > 0 ? (payload.score / payload.total) : 0;
+    var msg;
+    if(pct >= 0.85) msg = "Excellent work! That's a strong result across the board.";
+    else if(pct >= 0.6) msg = "Solid effort — a clear sense of where to focus next.";
+    else msg = "A good starting point — this pinpoints exactly where to build from.";
+    document.getElementById('quizScoreMsg').textContent = msg;
 
     var list = document.getElementById('quizReviewList');
     list.innerHTML = '';
@@ -257,17 +349,31 @@
   }
 
   document.getElementById('quizForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    var errorEl = document.getElementById('quizError');
-    errorEl.style.display = 'none';
+    e.preventDefault(); // Enter key inside the form shouldn't submit early — Next/Submit are explicit buttons.
+  });
 
-    if(Object.keys(answers).length < questions.length){
-      errorEl.textContent = 'Please answer every question before submitting (' + Object.keys(answers).length + ' of ' + questions.length + ' answered).';
+  document.getElementById('quizBackBtn').addEventListener('click', function(){
+    if(currentPage > 0) renderPage(currentPage - 1);
+  });
+
+  document.getElementById('quizNextBtn').addEventListener('click', function(){
+    var errorEl = document.getElementById('quizError');
+
+    if(!currentPageAnswered()){
+      errorEl.textContent = 'Please answer every question on this page before continuing.';
       errorEl.style.display = '';
       return;
     }
+    errorEl.style.display = 'none';
 
-    var btn = document.getElementById('quizSubmitBtn');
+    var isLastPage = currentPage === pages.length - 1;
+    if(!isLastPage){
+      renderPage(currentPage + 1);
+      return;
+    }
+
+    // Last page: submit the whole quiz.
+    var btn = document.getElementById('quizNextBtn');
     btn.disabled = true;
     btn.textContent = 'Submitting…';
 
