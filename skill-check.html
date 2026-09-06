@@ -52,6 +52,19 @@
         <a href="https://wa.me/919810947427?text=Hi%2C%20I%27d%20like%20to%20start%20the%20free%20Foundational%20Edge%20skill%20check">message Swati on WhatsApp</a> and she'll sort you out directly.
       </p>
 
+      <!-- ---- Attempt status: shown when past attempts exist for this reg_id + grade, before ---- -->
+      <!-- ---- letting the student start a fresh one. Populated from get_quiz_attempts(). ---- -->
+      <div id="attemptStatusPanel" style="display:none;">
+        <div class="quiz-score-card">
+          <div class="quiz-score-label">You've already taken this skill check</div>
+          <div class="quiz-score-msg" id="attemptStatusSub"></div>
+        </div>
+        <div id="attemptList"></div>
+        <div class="quiz-submit-bar" style="justify-content:center;">
+          <button type="button" class="btn btn-primary" id="attemptRetakeBtn" style="display:none;">Retake skill check →</button>
+        </div>
+      </div>
+
       <!-- ---- Quiz form: populated from Supabase get_quiz_questions(), one section per page ---- -->
       <form id="quizForm" style="display:none;">
         <div id="quizProgressBar" class="quiz-progress-bar"></div>
@@ -65,8 +78,11 @@
         <p id="quizError" class="quiz-error" style="display:none;"></p>
       </form>
 
-      <!-- ---- Results screen: shown after submit_quiz_attempt() returns ---- -->
+      <!-- ---- Results screen: shown after submit_quiz_attempt() returns, or when reviewing a past attempt ---- -->
       <div id="quizResults" style="display:none;">
+        <p id="quizBackToAttempts" style="display:none; text-align:center; margin-bottom:16px;">
+          <a href="#" id="quizBackToAttemptsLink" class="btn btn-ghost">← Back to my attempts</a>
+        </p>
         <div class="quiz-score-card">
           <div class="quiz-score-number" id="quizScoreNumber">0 / 0</div>
           <div class="quiz-score-label">Questions answered correctly</div>
@@ -101,8 +117,10 @@
   // for the full security rationale (same pattern as register_child / lookup_registration). ----
   var SUPABASE_URL = 'https://wwmbpgtddsyettfdakbe.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3bWJwZ3RkZHN5ZXR0ZmRha2JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjA4MDksImV4cCI6MjA5OTMzNjgwOX0.owfmZtMW83G3HGW69ofbSbisRBMHgK7AX7QpSl-xRO8';
+  var RPC_GET_ACTIVE_QUIZ = SUPABASE_URL + '/rest/v1/rpc/get_active_quiz';
   var RPC_GET_QUESTIONS = SUPABASE_URL + '/rest/v1/rpc/get_quiz_questions';
   var RPC_SUBMIT_ATTEMPT = SUPABASE_URL + '/rest/v1/rpc/submit_quiz_attempt';
+  var RPC_GET_ATTEMPTS = SUPABASE_URL + '/rest/v1/rpc/get_quiz_attempts';
 
   var params = new URLSearchParams(window.location.search);
   var grade = params.get('grade');
@@ -147,6 +165,8 @@
   var pages = [];     // grouped by section: [{ section, questions: [...] }, ...]
   var answers = {};   // { question_id: 'A'|'B'|'C'|'D' }
   var currentPage = 0;
+  var quizId = null;      // resolved via get_active_quiz — the specific quiz row for this grade
+  var maxAttempts = 3;    // overwritten with the quiz's real cap once get_active_quiz resolves
 
   // Small visual touch so each section feels distinct rather than one long undifferentiated list.
   var SECTION_ICONS = {
@@ -289,8 +309,67 @@
     document.getElementById('quizForm').style.display = '';
   }
 
+  function formatAttemptDate(iso){
+    try {
+      var d = new Date(iso);
+      return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+    } catch(e){ return ''; }
+  }
+
+  // Shows the attempt-status panel: past attempts (score + date, each reviewable) and a Retake
+  // button when under the 3-attempt cap, or a "used all attempts" note when at the cap.
+  function renderAttemptStatus(attempts){
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('quizForm').style.display = 'none';
+    document.getElementById('quizResults').style.display = 'none';
+
+    var count = attempts.length;
+    document.getElementById('attemptStatusSub').textContent = count >= maxAttempts
+      ? "You've used all " + maxAttempts + " attempts allowed for this skill check."
+      : "You've completed " + count + " of " + maxAttempts + " allowed attempts.";
+
+    var list = document.getElementById('attemptList');
+    list.innerHTML = '';
+    attempts.forEach(function(a){
+      var div = document.createElement('div');
+      div.className = 'quiz-review-q';
+
+      var tag = document.createElement('span');
+      tag.className = 'quiz-review-tag';
+      tag.textContent = 'Attempt ' + a.attempt_number;
+      div.appendChild(tag);
+
+      var p = document.createElement('p');
+      p.style.margin = '4px 0 12px';
+      p.textContent = 'Score: ' + a.score + ' / ' + a.total + ' · ' + formatAttemptDate(a.submitted_at);
+      div.appendChild(p);
+
+      var reviewBtn = document.createElement('button');
+      reviewBtn.type = 'button';
+      reviewBtn.className = 'btn btn-ghost';
+      reviewBtn.textContent = 'Review this attempt →';
+      reviewBtn.addEventListener('click', function(){
+        renderResults({ score: a.score, total: a.total, results: a.results });
+      });
+      div.appendChild(reviewBtn);
+
+      list.appendChild(div);
+    });
+
+    var retakeBtn = document.getElementById('attemptRetakeBtn');
+    if(count < maxAttempts){
+      retakeBtn.style.display = '';
+      retakeBtn.onclick = function(){ loadAndRenderQuiz(); };
+    } else {
+      retakeBtn.style.display = 'none';
+    }
+
+    document.getElementById('attemptStatusPanel').style.display = '';
+  }
+
   function renderResults(payload){
     document.getElementById('quizForm').style.display = 'none';
+    document.getElementById('attemptStatusPanel').style.display = 'none';
     document.getElementById('worksheetPrompt').innerHTML = '<strong>Done with the skill check?</strong> If your child worked anything out on paper, send us those photos now — it only takes a second.';
     document.getElementById('worksheetWhatsappLink').style.display = '';
 
@@ -303,16 +382,32 @@
     else msg = "A good starting point — this pinpoints exactly where to build from.";
     document.getElementById('quizScoreMsg').textContent = msg;
 
+    // Lets the student jump back to see all their attempts (only meaningful when we can key
+    // attempts by reg_id — anonymous access with no regId has nothing to go back to).
+    var backLink = document.getElementById('quizBackToAttempts');
+    if(regId){
+      backLink.style.display = '';
+      document.getElementById('quizBackToAttemptsLink').onclick = function(e){
+        e.preventDefault();
+        supabaseRpc(RPC_GET_ATTEMPTS, { p_reg_id: regId, p_quiz_id: quizId })
+          .then(renderAttemptStatus)
+          .catch(function(err){ console.error(err); });
+      };
+    } else {
+      backLink.style.display = 'none';
+    }
+
     var list = document.getElementById('quizReviewList');
     list.innerHTML = '';
 
-    // Match results back to question order/text (results array doesn't carry question text)
-    var byId = {};
-    questions.forEach(function(q){ byId[q.id] = q; });
+    // The results snapshot (from submit_quiz_attempt or get_quiz_attempts) carries question
+    // text/options/explanation directly, so review stays accurate even if a question is later
+    // edited or retired — no separate lookup against the live `questions` list needed.
+    var sortedResults = (payload.results || []).slice().sort(function(a, b){
+      return (a.order_num || 0) - (b.order_num || 0);
+    });
 
-    payload.results.forEach(function(r, idx){
-      var q = byId[r.question_id];
-      if(!q) return;
+    sortedResults.forEach(function(r, idx){
       var div = document.createElement('div');
       div.className = 'quiz-review-q ' + (r.is_correct ? 'correct' : 'incorrect');
 
@@ -324,7 +419,7 @@
       var qText = document.createElement('p');
       qText.style.margin = '4px 0 6px';
       qText.style.fontWeight = '600';
-      qText.textContent = (idx + 1) + '. ' + q.question_text;
+      qText.textContent = (idx + 1) + '. ' + r.question_text;
       div.appendChild(qText);
 
       if(!r.is_correct){
@@ -346,6 +441,7 @@
     });
 
     document.getElementById('quizResults').style.display = '';
+    document.getElementById('quizResults').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   document.getElementById('quizForm').addEventListener('submit', function(e){
@@ -379,11 +475,25 @@
 
     supabaseRpc(RPC_SUBMIT_ATTEMPT, {
       p_reg_id: regId || null,
-      p_grade: grade,
+      p_quiz_id: quizId,
       p_answers: answers
     }).then(function(rows){
       var row = rows && rows[0];
       if(!row) throw new Error('no result returned');
+
+      if(row.success === false){
+        // Most likely hit by opening the quiz in two tabs and submitting attempt #3 in both —
+        // the server-side count is the source of truth, so re-sync the UI to it rather than
+        // just showing an error and leaving the student stuck on a stale quiz form.
+        document.getElementById('quizForm').style.display = 'none';
+        if(regId){
+          supabaseRpc(RPC_GET_ATTEMPTS, { p_reg_id: regId, p_quiz_id: quizId })
+            .then(renderAttemptStatus)
+            .catch(function(err){ console.error(err); });
+        }
+        return;
+      }
+
       renderResults(row);
     }).catch(function(err){
       console.error(err);
@@ -394,6 +504,23 @@
     });
   });
 
+  function loadAndRenderQuiz(){
+    document.getElementById('attemptStatusPanel').style.display = 'none';
+    document.getElementById('quizResults').style.display = 'none';
+    document.getElementById('loadingState').style.display = '';
+
+    supabaseRpc(RPC_GET_QUESTIONS, { p_quiz_id: quizId }).then(function(rows){
+      if(rows && rows.length > 0){
+        renderQuiz(rows);
+      } else {
+        showNoForm();
+      }
+    }).catch(function(err){
+      console.error(err);
+      showNoForm();
+    });
+  }
+
   if(!grade){
     showNoForm();
   } else {
@@ -401,11 +528,35 @@
     document.getElementById('tierEyebrow').textContent = 'Free skill check · ' + gradeLabel;
     setupWorksheetWhatsapp(gradeLabel);
 
-    supabaseRpc(RPC_GET_QUESTIONS, { p_grade: grade }).then(function(rows){
-      if(rows && rows.length > 0){
-        renderQuiz(rows);
-      } else {
+    // Resolve which quiz row applies to this grade first (the active, non-expired
+    // Free-Skill-Test with the latest publish_date) — everything downstream (questions,
+    // attempts, the attempt cap) is keyed off quiz_id, not the bare grade.
+    supabaseRpc(RPC_GET_ACTIVE_QUIZ, { p_grade: grade, p_quiz_type: 'Free-Skill-Test' }).then(function(rows){
+      var quiz = rows && rows[0];
+      if(!quiz){
         showNoForm();
+        return;
+      }
+      quizId = quiz.quiz_id;
+      maxAttempts = quiz.max_attempts;
+
+      if(regId){
+        // Check for past attempts first so a student who already took this skill check sees
+        // their history/review options instead of silently starting over. Without a regId
+        // (shouldn't normally happen — practice-test.html always includes one) attempts can't
+        // be tracked, so just go straight to the quiz, same as before this feature existed.
+        supabaseRpc(RPC_GET_ATTEMPTS, { p_reg_id: regId, p_quiz_id: quizId }).then(function(attempts){
+          if(attempts && attempts.length > 0){
+            renderAttemptStatus(attempts);
+          } else {
+            loadAndRenderQuiz();
+          }
+        }).catch(function(err){
+          console.error(err);
+          loadAndRenderQuiz(); // don't let an attempt-history hiccup block taking the quiz
+        });
+      } else {
+        loadAndRenderQuiz();
       }
     }).catch(function(err){
       console.error(err);
