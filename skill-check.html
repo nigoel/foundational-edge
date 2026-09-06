@@ -125,6 +125,7 @@
   var params = new URLSearchParams(window.location.search);
   var grade = params.get('grade');
   var regId = params.get('regId');
+  var previewQuizId = params.get('previewQuizId'); // admin preview: show this exact quiz, bypassing get_active_quiz
 
   function prettifyFromRegId(id){
     if(!id) return '';
@@ -528,40 +529,51 @@
     document.getElementById('tierEyebrow').textContent = 'Free skill check · ' + gradeLabel;
     setupWorksheetWhatsapp(gradeLabel);
 
-    // Resolve which quiz row applies to this grade first (the active, non-expired
-    // Free-Skill-Test with the latest publish_date) — everything downstream (questions,
-    // attempts, the attempt cap) is keyed off quiz_id, not the bare grade.
-    supabaseRpc(RPC_GET_ACTIVE_QUIZ, { p_grade: grade, p_quiz_type: 'Free-Skill-Test' }).then(function(rows){
-      var quiz = rows && rows[0];
-      if(!quiz){
-        showNoForm();
-        return;
-      }
-      quizId = quiz.quiz_id;
-      maxAttempts = quiz.max_attempts;
+    if(previewQuizId){
+      // Admin preview link: show this exact quiz regardless of whether it's the currently
+      // "active" one for this grade (e.g. previewing a draft or a retired quiz). Skips
+      // get_active_quiz entirely, and skips attempt tracking (a preview shouldn't burn a real
+      // attempt against anyone's regId, and "admin" isn't a real registration anyway).
+      quizId = previewQuizId;
+      maxAttempts = Infinity;
+      loadAndRenderQuiz();
+    } else {
+      // Resolve which quiz row applies to this grade first (the active, non-expired
+      // Free-Skill-Test with the latest publish_date) — everything downstream (questions,
+      // attempts, the attempt cap) is keyed off quiz_id, not the bare grade.
+      supabaseRpc(RPC_GET_ACTIVE_QUIZ, { p_grade: grade, p_quiz_type: 'Free-Skill-Test' }).then(function(rows){
+        var quiz = rows && rows[0];
+        if(!quiz){
+          showNoForm();
+          return;
+        }
+        quizId = quiz.quiz_id;
+        maxAttempts = quiz.max_attempts;
 
-      if(regId){
-        // Check for past attempts first so a student who already took this skill check sees
-        // their history/review options instead of silently starting over. Without a regId
-        // (shouldn't normally happen — practice-test.html always includes one) attempts can't
-        // be tracked, so just go straight to the quiz, same as before this feature existed.
-        supabaseRpc(RPC_GET_ATTEMPTS, { p_reg_id: regId, p_quiz_id: quizId }).then(function(attempts){
-          if(attempts && attempts.length > 0){
-            renderAttemptStatus(attempts);
-          } else {
-            loadAndRenderQuiz();
-          }
-        }).catch(function(err){
-          console.error(err);
-          loadAndRenderQuiz(); // don't let an attempt-history hiccup block taking the quiz
-        });
-      } else {
-        loadAndRenderQuiz();
-      }
-    }).catch(function(err){
-      console.error(err);
-      showNoForm();
-    });
+        if(regId){
+          // Check for past attempts first so a student who already took this skill check sees
+          // their history/review options instead of silently starting over. Without a regId
+          // (shouldn't normally happen — practice-test.html always includes one) attempts
+          // can't be tracked, so just go straight to the quiz, same as before this feature
+          // existed.
+          supabaseRpc(RPC_GET_ATTEMPTS, { p_reg_id: regId, p_quiz_id: quizId }).then(function(attempts){
+            if(attempts && attempts.length > 0){
+              renderAttemptStatus(attempts);
+            } else {
+              loadAndRenderQuiz();
+            }
+          }).catch(function(err){
+            console.error(err);
+            loadAndRenderQuiz(); // don't let an attempt-history hiccup block taking the quiz
+          });
+        } else {
+          loadAndRenderQuiz();
+        }
+      }).catch(function(err){
+        console.error(err);
+        showNoForm();
+      });
+    }
   }
 </script>
 
