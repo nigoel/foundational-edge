@@ -117,6 +117,7 @@
   // for the full security rationale (same pattern as register_child / lookup_registration). ----
   var SUPABASE_URL = 'https://wwmbpgtddsyettfdakbe.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3bWJwZ3RkZHN5ZXR0ZmRha2JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjA4MDksImV4cCI6MjA5OTMzNjgwOX0.owfmZtMW83G3HGW69ofbSbisRBMHgK7AX7QpSl-xRO8';
+  var RPC_GET_ACTIVE_QUIZ = SUPABASE_URL + '/rest/v1/rpc/get_active_quiz';
   var RPC_GET_QUESTIONS = SUPABASE_URL + '/rest/v1/rpc/get_quiz_questions';
   var RPC_SUBMIT_ATTEMPT = SUPABASE_URL + '/rest/v1/rpc/submit_quiz_attempt';
   var RPC_GET_ATTEMPTS = SUPABASE_URL + '/rest/v1/rpc/get_quiz_attempts';
@@ -164,6 +165,8 @@
   var pages = [];     // grouped by section: [{ section, questions: [...] }, ...]
   var answers = {};   // { question_id: 'A'|'B'|'C'|'D' }
   var currentPage = 0;
+  var quizId = null;      // resolved via get_active_quiz — the specific quiz row for this grade
+  var maxAttempts = 3;    // overwritten with the quiz's real cap once get_active_quiz resolves
 
   // Small visual touch so each section feels distinct rather than one long undifferentiated list.
   var SECTION_ICONS = {
@@ -321,9 +324,9 @@
     document.getElementById('quizResults').style.display = 'none';
 
     var count = attempts.length;
-    document.getElementById('attemptStatusSub').textContent = count >= 3
-      ? "You've used all 3 attempts allowed for this skill check."
-      : "You've completed " + count + " of 3 allowed attempts.";
+    document.getElementById('attemptStatusSub').textContent = count >= maxAttempts
+      ? "You've used all " + maxAttempts + " attempts allowed for this skill check."
+      : "You've completed " + count + " of " + maxAttempts + " allowed attempts.";
 
     var list = document.getElementById('attemptList');
     list.innerHTML = '';
@@ -354,7 +357,7 @@
     });
 
     var retakeBtn = document.getElementById('attemptRetakeBtn');
-    if(count < 3){
+    if(count < maxAttempts){
       retakeBtn.style.display = '';
       retakeBtn.onclick = function(){ loadAndRenderQuiz(); };
     } else {
@@ -386,7 +389,7 @@
       backLink.style.display = '';
       document.getElementById('quizBackToAttemptsLink').onclick = function(e){
         e.preventDefault();
-        supabaseRpc(RPC_GET_ATTEMPTS, { p_reg_id: regId, p_grade: grade })
+        supabaseRpc(RPC_GET_ATTEMPTS, { p_reg_id: regId, p_quiz_id: quizId })
           .then(renderAttemptStatus)
           .catch(function(err){ console.error(err); });
       };
@@ -472,7 +475,7 @@
 
     supabaseRpc(RPC_SUBMIT_ATTEMPT, {
       p_reg_id: regId || null,
-      p_grade: grade,
+      p_quiz_id: quizId,
       p_answers: answers
     }).then(function(rows){
       var row = rows && rows[0];
@@ -484,7 +487,7 @@
         // just showing an error and leaving the student stuck on a stale quiz form.
         document.getElementById('quizForm').style.display = 'none';
         if(regId){
-          supabaseRpc(RPC_GET_ATTEMPTS, { p_reg_id: regId, p_grade: grade })
+          supabaseRpc(RPC_GET_ATTEMPTS, { p_reg_id: regId, p_quiz_id: quizId })
             .then(renderAttemptStatus)
             .catch(function(err){ console.error(err); });
         }
@@ -506,7 +509,7 @@
     document.getElementById('quizResults').style.display = 'none';
     document.getElementById('loadingState').style.display = '';
 
-    supabaseRpc(RPC_GET_QUESTIONS, { p_grade: grade }).then(function(rows){
+    supabaseRpc(RPC_GET_QUESTIONS, { p_quiz_id: quizId }).then(function(rows){
       if(rows && rows.length > 0){
         renderQuiz(rows);
       } else {
@@ -525,24 +528,40 @@
     document.getElementById('tierEyebrow').textContent = 'Free skill check · ' + gradeLabel;
     setupWorksheetWhatsapp(gradeLabel);
 
-    if(regId){
-      // Check for past attempts first so a student who already took this skill check sees their
-      // history/review options instead of silently starting over. Without a regId (shouldn't
-      // normally happen — practice-test.html always includes one) attempts can't be tracked, so
-      // just go straight to the quiz, same as before this feature existed.
-      supabaseRpc(RPC_GET_ATTEMPTS, { p_reg_id: regId, p_grade: grade }).then(function(attempts){
-        if(attempts && attempts.length > 0){
-          renderAttemptStatus(attempts);
-        } else {
-          loadAndRenderQuiz();
-        }
-      }).catch(function(err){
-        console.error(err);
-        loadAndRenderQuiz(); // don't let an attempt-history hiccup block taking the quiz
-      });
-    } else {
-      loadAndRenderQuiz();
-    }
+    // Resolve which quiz row applies to this grade first (the active, non-expired
+    // Free-Skill-Test with the latest publish_date) — everything downstream (questions,
+    // attempts, the attempt cap) is keyed off quiz_id, not the bare grade.
+    supabaseRpc(RPC_GET_ACTIVE_QUIZ, { p_grade: grade, p_quiz_type: 'Free-Skill-Test' }).then(function(rows){
+      var quiz = rows && rows[0];
+      if(!quiz){
+        showNoForm();
+        return;
+      }
+      quizId = quiz.quiz_id;
+      maxAttempts = quiz.max_attempts;
+
+      if(regId){
+        // Check for past attempts first so a student who already took this skill check sees
+        // their history/review options instead of silently starting over. Without a regId
+        // (shouldn't normally happen — practice-test.html always includes one) attempts can't
+        // be tracked, so just go straight to the quiz, same as before this feature existed.
+        supabaseRpc(RPC_GET_ATTEMPTS, { p_reg_id: regId, p_quiz_id: quizId }).then(function(attempts){
+          if(attempts && attempts.length > 0){
+            renderAttemptStatus(attempts);
+          } else {
+            loadAndRenderQuiz();
+          }
+        }).catch(function(err){
+          console.error(err);
+          loadAndRenderQuiz(); // don't let an attempt-history hiccup block taking the quiz
+        });
+      } else {
+        loadAndRenderQuiz();
+      }
+    }).catch(function(err){
+      console.error(err);
+      showNoForm();
+    });
   }
 </script>
 
