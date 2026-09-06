@@ -37,10 +37,10 @@
       <div class="section-head reveal">
         <span class="eyebrow" id="tierEyebrow">Free skill check</span>
         <h2 id="checkHeading">Your child's skill check</h2>
-        <p>Answer the questions below — it takes about 15 minutes. Your results go straight to Swati's team.</p>
+        <p id="checkSubhead">Answer the questions below — it takes about 15 minutes. Your results go straight to Swati's team.</p>
       </div>
 
-      <div class="worksheet-note reveal">
+      <div class="worksheet-note reveal" id="worksheetNote">
         <p id="worksheetPrompt"><strong>Optional, but encouraged:</strong> if your child works anything out on paper while answering, send us a photo of the rough work too — it helps Swati spot exactly where the gaps are, not just the final answers.</p>
         <a id="worksheetWhatsappLink" href="#" class="btn btn-primary" target="_blank" rel="noopener" style="display:none;">Send worksheet photos to Swati →</a>
       </div>
@@ -52,14 +52,25 @@
         <a href="https://wa.me/919810947427?text=Hi%2C%20I%27d%20like%20to%20start%20the%20free%20Foundational%20Edge%20skill%20check">message Swati on WhatsApp</a> and she'll sort you out directly.
       </p>
 
-      <div id="embedCard" class="embed-card reveal" style="display:none;">
-        <iframe id="formFrame" src="" title="Foundational Edge skill check" loading="lazy">Loading…</iframe>
-      </div>
+      <!-- ---- Quiz form: populated from Supabase get_quiz_questions() ---- -->
+      <form id="quizForm" style="display:none;">
+        <div id="quizProgress" class="quiz-progress"></div>
+        <div id="quizQuestions"></div>
+        <div class="quiz-submit-bar">
+          <span class="quiz-submit-note" id="quizSubmitNote">Answer every question, then submit.</span>
+          <button type="submit" class="btn btn-primary" id="quizSubmitBtn">Submit skill check →</button>
+        </div>
+        <p id="quizError" class="quiz-error" style="display:none;"></p>
+      </form>
 
-      <p id="embedFallback" class="embed-fallback" style="display:none;">
-        Form not loading? <a id="fallbackLink" href="#" target="_blank" rel="noopener">Open it in a new tab</a>,
-        or <a href="https://wa.me/919810947427?text=Hi%2C%20I%27d%20like%20to%20start%20the%20free%20Foundational%20Edge%20skill%20check">message Swati on WhatsApp instead</a>.
-      </p>
+      <!-- ---- Results screen: shown after submit_quiz_attempt() returns ---- -->
+      <div id="quizResults" style="display:none;">
+        <div class="quiz-score-card">
+          <div class="quiz-score-number" id="quizScoreNumber">0 / 0</div>
+          <div class="quiz-score-label">Questions answered correctly</div>
+        </div>
+        <div id="quizReviewList"></div>
+      </div>
     </div>
   </section>
 </main>
@@ -81,12 +92,14 @@
 
 <script src="js/main.js"></script>
 <script>
-  // ---- Supabase: looks up the active Free-Test form for this exact grade via a security-definer
-  // RPC (get_active_skill_form, see SETUP_SKILL_FORMS.sql) rather than a raw table read — anon has
-  // no direct access to skill_check_forms at all. Same anon key as practice-test.html. ----
+  // ---- Supabase: same project as practice-test.html / SETUP_SKILL_FORMS.sql, but this page now
+  // talks to the custom questions system (SETUP_QUESTIONS.sql) instead of embedding a Google Form.
+  // Both RPCs are security-definer functions — anon has zero direct table access; see the SQL file
+  // for the full security rationale (same pattern as register_child / lookup_registration). ----
   var SUPABASE_URL = 'https://wwmbpgtddsyettfdakbe.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3bWJwZ3RkZHN5ZXR0ZmRha2JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjA4MDksImV4cCI6MjA5OTMzNjgwOX0.owfmZtMW83G3HGW69ofbSbisRBMHgK7AX7QpSl-xRO8';
-  var RPC_ACTIVE_FORM_URL = SUPABASE_URL + '/rest/v1/rpc/get_active_skill_form';
+  var RPC_GET_QUESTIONS = SUPABASE_URL + '/rest/v1/rpc/get_quiz_questions';
+  var RPC_SUBMIT_ATTEMPT = SUPABASE_URL + '/rest/v1/rpc/submit_quiz_attempt';
 
   var params = new URLSearchParams(window.location.search);
   var grade = params.get('grade');
@@ -98,70 +111,193 @@
     return namePart.replace(/([a-z0-9])([A-Z])/g, '$1 $2').trim();
   }
 
-  function showNoForm(){
-    document.getElementById('loadingState').style.display = 'none';
-    document.getElementById('noFormState').style.display = '';
-  }
-
-  function showForm(formUrl, regIdEntry){
-    var gradeLabel = grade ? 'Grade ' + grade : 'Free skill check';
-    document.getElementById('tierEyebrow').textContent = 'Free skill check · ' + gradeLabel;
-
-    var prefillQuery = (regId && regIdEntry) ? '?' + regIdEntry + '=' + encodeURIComponent(regId) : '';
-    var formFrame = document.getElementById('formFrame');
-    document.getElementById('fallbackLink').href = formUrl + prefillQuery;
-
-    // ---- Detect submission via the iframe's second "load" event. Google Forms gives embeds no
-    // official completion callback, but submitting one navigates the iframe (same-origin-
-    // restricted, so we can't read it) from the question page to a "your response has been
-    // recorded" page — a real navigation, which fires another load event. The first load is just
-    // the form appearing, so only react from the second one onward. Not airtight (an unusual form
-    // flow with an extra internal redirect could trigger it early), but it's the standard approach
-    // for this. ----
-    var formLoadCount = 0;
-    formFrame.addEventListener('load', function(){
-      formLoadCount++;
-      if(formLoadCount > 1){
-        formFrame.style.height = '480px';
-        document.getElementById('worksheetPrompt').innerHTML = '<strong>Done with the skill check?</strong> If your child worked anything out on paper, send us those photos now — it only takes a second.';
-        document.getElementById('worksheetWhatsappLink').style.display = '';
-      }
-    });
-    formFrame.src = formUrl + (prefillQuery ? prefillQuery + '&embedded=true' : '?embedded=true');
-
-    // ---- "Send worksheet photos to Swati" WhatsApp deep link. There's no file upload here by
-    // design — WhatsApp can't be pre-loaded with attachments via a link, so this just pre-fills
-    // the message text with enough detail (registration ID, child's name, grade) for Swati to
-    // match the photos to the right registration once the parent attaches and sends them. ----
-    var childName = prettifyFromRegId(regId);
-    var waTextParts = ["Hi Swati, I'd like to share " + (childName ? 'my child ' + childName + "'s" : "my child's") + ' rough worksheet photos for the free skill check.'];
-    if (regId) waTextParts.push('Registration ID: ' + regId + '.');
-    waTextParts.push('(' + gradeLabel + ')');
-    document.getElementById('worksheetWhatsappLink').href = 'https://wa.me/919810947427?text=' + encodeURIComponent(waTextParts.join(' '));
-
-    document.getElementById('loadingState').style.display = 'none';
-    document.getElementById('embedCard').style.display = '';
-    document.getElementById('embedFallback').style.display = '';
-  }
-
-  if(!grade){
-    showNoForm();
-  } else {
-    fetch(RPC_ACTIVE_FORM_URL, {
+  function supabaseRpc(url, body){
+    return fetch(url, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_ANON_KEY,
         'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ p_grade: grade })
+      body: JSON.stringify(body)
     }).then(function(res){
-      if(!res.ok) throw new Error('lookup failed: ' + res.status);
+      if(!res.ok) throw new Error('request failed: ' + res.status);
       return res.json();
+    });
+  }
+
+  function showNoForm(){
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('noFormState').style.display = '';
+    document.getElementById('worksheetNote').style.display = 'none';
+  }
+
+  function setupWorksheetWhatsapp(gradeLabel){
+    var childName = prettifyFromRegId(regId);
+    var waTextParts = ["Hi Swati, I'd like to share " + (childName ? 'my child ' + childName + "'s" : "my child's") + ' rough worksheet photos for the free skill check.'];
+    if (regId) waTextParts.push('Registration ID: ' + regId + '.');
+    waTextParts.push('(' + gradeLabel + ')');
+    document.getElementById('worksheetWhatsappLink').href = 'https://wa.me/919810947427?text=' + encodeURIComponent(waTextParts.join(' '));
+  }
+
+  var questions = []; // full list from get_quiz_questions
+  var answers = {};   // { question_id: 'A'|'B'|'C'|'D' }
+
+  function renderQuiz(qs){
+    questions = qs;
+    var container = document.getElementById('quizQuestions');
+    container.innerHTML = '';
+    var lastSection = null;
+
+    qs.forEach(function(q, idx){
+      if(q.section !== lastSection){
+        var label = document.createElement('div');
+        label.className = 'quiz-section-label';
+        label.textContent = q.section;
+        container.appendChild(label);
+        lastSection = q.section;
+      }
+
+      var qDiv = document.createElement('div');
+      qDiv.className = 'quiz-q';
+
+      var qText = document.createElement('p');
+      qText.className = 'quiz-q-text';
+      qText.textContent = (idx + 1) + '. ' + q.question_text;
+      qDiv.appendChild(qText);
+
+      var optsDiv = document.createElement('div');
+      optsDiv.className = 'quiz-options';
+
+      [['A', q.option_a], ['B', q.option_b], ['C', q.option_c], ['D', q.option_d]].forEach(function(pair){
+        var letter = pair[0], text = pair[1];
+        var label = document.createElement('label');
+        label.className = 'quiz-option';
+        label.dataset.qid = q.id;
+        label.dataset.letter = letter;
+
+        var input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'q_' + q.id;
+        input.value = letter;
+        input.addEventListener('change', function(){
+          answers[q.id] = letter;
+          optsDiv.querySelectorAll('.quiz-option').forEach(function(el){
+            el.classList.toggle('selected', el.dataset.letter === letter);
+          });
+        });
+
+        var span = document.createElement('span');
+        span.textContent = letter + '. ' + text;
+
+        label.appendChild(input);
+        label.appendChild(span);
+        optsDiv.appendChild(label);
+      });
+
+      qDiv.appendChild(optsDiv);
+      container.appendChild(qDiv);
+    });
+
+    document.getElementById('quizProgress').textContent = qs.length + ' questions · Grade ' + grade;
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('quizForm').style.display = '';
+  }
+
+  function renderResults(payload){
+    document.getElementById('quizForm').style.display = 'none';
+    document.getElementById('worksheetPrompt').innerHTML = '<strong>Done with the skill check?</strong> If your child worked anything out on paper, send us those photos now — it only takes a second.';
+    document.getElementById('worksheetWhatsappLink').style.display = '';
+
+    document.getElementById('quizScoreNumber').textContent = payload.score + ' / ' + payload.total;
+
+    var list = document.getElementById('quizReviewList');
+    list.innerHTML = '';
+
+    // Match results back to question order/text (results array doesn't carry question text)
+    var byId = {};
+    questions.forEach(function(q){ byId[q.id] = q; });
+
+    payload.results.forEach(function(r, idx){
+      var q = byId[r.question_id];
+      if(!q) return;
+      var div = document.createElement('div');
+      div.className = 'quiz-review-q ' + (r.is_correct ? 'correct' : 'incorrect');
+
+      var tag = document.createElement('span');
+      tag.className = 'quiz-review-tag';
+      tag.textContent = r.is_correct ? 'Correct' : 'Needs review';
+      div.appendChild(tag);
+
+      var qText = document.createElement('p');
+      qText.style.margin = '4px 0 6px';
+      qText.style.fontWeight = '600';
+      qText.textContent = (idx + 1) + '. ' + q.question_text;
+      div.appendChild(qText);
+
+      if(!r.is_correct){
+        var given = document.createElement('p');
+        given.style.fontSize = '14px';
+        given.style.margin = '0 0 4px';
+        given.textContent = 'Your answer: ' + (r.given_answer || '(none)') + ' · Correct answer: ' + r.correct_answer;
+        div.appendChild(given);
+      }
+
+      if(r.explanation){
+        var expl = document.createElement('p');
+        expl.className = 'quiz-review-explain';
+        expl.textContent = r.explanation;
+        div.appendChild(expl);
+      }
+
+      list.appendChild(div);
+    });
+
+    document.getElementById('quizResults').style.display = '';
+  }
+
+  document.getElementById('quizForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    var errorEl = document.getElementById('quizError');
+    errorEl.style.display = 'none';
+
+    if(Object.keys(answers).length < questions.length){
+      errorEl.textContent = 'Please answer every question before submitting (' + Object.keys(answers).length + ' of ' + questions.length + ' answered).';
+      errorEl.style.display = '';
+      return;
+    }
+
+    var btn = document.getElementById('quizSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+
+    supabaseRpc(RPC_SUBMIT_ATTEMPT, {
+      p_reg_id: regId || null,
+      p_grade: grade,
+      p_answers: answers
     }).then(function(rows){
       var row = rows && rows[0];
-      if(row && row.form_url){
-        showForm(row.form_url, row.regid_entry);
+      if(!row) throw new Error('no result returned');
+      renderResults(row);
+    }).catch(function(err){
+      console.error(err);
+      errorEl.textContent = "Something went wrong submitting your answers. Please try again, or message Swati on WhatsApp.";
+      errorEl.style.display = '';
+      btn.disabled = false;
+      btn.textContent = 'Submit skill check →';
+    });
+  });
+
+  if(!grade){
+    showNoForm();
+  } else {
+    var gradeLabel = 'Grade ' + grade;
+    document.getElementById('tierEyebrow').textContent = 'Free skill check · ' + gradeLabel;
+    setupWorksheetWhatsapp(gradeLabel);
+
+    supabaseRpc(RPC_GET_QUESTIONS, { p_grade: grade }).then(function(rows){
+      if(rows && rows.length > 0){
+        renderQuiz(rows);
       } else {
         showNoForm();
       }

@@ -512,3 +512,55 @@
     letter-spacing:.02em; color:var(--ink); background:var(--brass-lt); border-radius:6px;
     padding:10px 20px; margin:8px 0 6px; max-width:100%; word-break:break-all;
   }
+
+  /* ---------- native quiz (skill-check.html custom questions) ---------- */
+  .quiz-progress{
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--ink-soft); margin-bottom:18px;
+  }
+  .quiz-section-label{
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--brass); margin:34px 0 10px; padding-top:20px; border-top:1px solid var(--line);
+  }
+  .quiz-section-label:first-of-type{ margin-top:0; padding-top:0; border-top:none; }
+  .quiz-q{
+    background:var(--paper-lt); border:1px solid var(--line); border-radius:6px;
+    padding:22px 24px; margin-bottom:16px;
+  }
+  .quiz-q-text{ font-size:16px; font-weight:600; margin:0 0 16px; line-height:1.5; }
+  .quiz-options{ display:grid; gap:10px; }
+  .quiz-option{
+    display:flex; align-items:flex-start; gap:12px; padding:12px 14px; border:1px solid var(--line);
+    border-radius:6px; cursor:pointer; background:var(--paper); transition:border-color .15s, background .15s;
+  }
+  .quiz-option:hover{ border-color:var(--ink-soft); }
+  .quiz-option input{ margin-top:3px; accent-color:var(--ink); flex-shrink:0; }
+  .quiz-option span{ font-size:14.5px; line-height:1.45; }
+  .quiz-option.selected{ border-color:var(--ink); background:var(--brass-lt); }
+  .quiz-submit-bar{
+    position:sticky; bottom:0; background:var(--paper); border-top:1px solid var(--line);
+    padding:16px 0; margin-top:24px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+  }
+  .quiz-submit-note{ font-size:13px; color:var(--ink-soft); }
+  .quiz-error{ font-size:13px; color:#c0392b; margin-top:10px; }
+
+  /* ---------- quiz results screen ---------- */
+  .quiz-score-card{
+    background:var(--paper-lt); border:1px solid var(--line); border-top:4px solid var(--teal);
+    border-radius:6px; padding:32px 28px; text-align:center; margin-bottom:28px;
+  }
+  .quiz-score-number{ font-family:'Source Serif 4', Georgia, serif; font-size:48px; font-weight:700; color:var(--ink); }
+  .quiz-score-label{ font-size:14.5px; color:var(--ink-soft); margin-top:6px; }
+  .quiz-review-q{
+    background:var(--paper-lt); border:1px solid var(--line); border-left:4px solid var(--line);
+    border-radius:6px; padding:18px 22px; margin-bottom:12px;
+  }
+  .quiz-review-q.correct{ border-left-color:var(--teal); }
+  .quiz-review-q.incorrect{ border-left-color:#c0392b; }
+  .quiz-review-tag{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+    font-weight:600; margin-bottom:8px; display:inline-block;
+  }
+  .quiz-review-q.correct .quiz-review-tag{ color:var(--teal); }
+  .quiz-review-q.incorrect .quiz-review-tag{ color:#c0392b; }
+  .quiz-review-explain{ font-size:14px; color:var(--ink-soft); margin-top:8px; }
