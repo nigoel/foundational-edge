@@ -1,0 +1,43 @@
+<svg viewBox="0 0 400 420" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="200" cy="220" r="170" fill="#FFF3E6"/>
+
+  <!-- legs, cross-legged -->
+  <ellipse cx="200" cy="330" rx="105" ry="55" fill="#FF6F59"/>
+  <ellipse cx="150" cy="335" rx="34" ry="20" fill="#C98A5E"/>
+  <ellipse cx="250" cy="335" rx="34" ry="20" fill="#C98A5E"/>
+
+  <!-- torso: kurta -->
+  <path d="M 130 195 Q 130 150 200 148 Q 270 150 270 195 L 282 320 Q 200 345 118 320 Z" fill="#FF6F59"/>
+  <path d="M 150 200 L 160 320 M 250 200 L 240 320" stroke="#E85A45" stroke-width="3" opacity="0.5"/>
+  <path d="M 150 165 Q 200 190 250 165" fill="none" stroke="#FFCB4D" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- arms holding book -->
+  <path d="M 150 210 Q 110 240 140 275" fill="none" stroke="#C98A5E" stroke-width="22" stroke-linecap="round"/>
+  <path d="M 250 210 Q 290 240 260 275" fill="none" stroke="#C98A5E" stroke-width="22" stroke-linecap="round"/>
+
+  <!-- book -->
+  <g transform="translate(200,282)">
+    <path d="M -55 0 L 0 -14 L 55 0 L 55 22 L 0 10 L -55 22 Z" fill="#FFFBF6" stroke="#2C2560" stroke-width="3"/>
+    <line x1="0" y1="-14" x2="0" y2="10" stroke="#2C2560" stroke-width="3"/>
+    <line x1="-38" y1="4" x2="-10" y2="-3" stroke="#2C2560" stroke-width="2" opacity="0.4"/>
+    <line x1="38" y1="4" x2="10" y2="-3" stroke="#2C2560" stroke-width="2" opacity="0.4"/>
+  </g>
+
+  <!-- neck + head -->
+  <rect x="185" y="130" width="30" height="28" rx="10" fill="#B87A4E"/>
+  <circle cx="200" cy="105" r="58" fill="#C98A5E"/>
+
+  <!-- hair: center part + two buns -->
+  <path d="M 142 100 Q 142 45 200 45 Q 258 45 258 100 Q 258 70 200 68 Q 142 70 142 100 Z" fill="#2E1F1A"/>
+  <circle cx="138" cy="95" r="22" fill="#2E1F1A"/>
+  <circle cx="262" cy="95" r="22" fill="#2E1F1A"/>
+  <circle cx="138" cy="95" r="7" fill="#FF6F59"/>
+  <circle cx="262" cy="95" r="7" fill="#FF6F59"/>
+
+  <!-- face -->
+  <circle cx="178" cy="108" r="6" fill="#2C2560"/>
+  <circle cx="222" cy="108" r="6" fill="#2C2560"/>
+  <path d="M 175 130 Q 200 148 225 130" fill="none" stroke="#2C2560" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="165" cy="122" r="9" fill="#FF6F59" opacity="0.35"/>
+  <circle cx="235" cy="122" r="9" fill="#FF6F59" opacity="0.35"/>
+</svg>
