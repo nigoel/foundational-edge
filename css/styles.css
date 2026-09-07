@@ -1,14 +1,14 @@
 :root{
-    --ink:        #16283D;   /* primary ink navy */
-    --ink-2:      #223A54;   /* secondary indigo */
-    --paper:      #EFEAE0;   /* muted paper */
-    --paper-lt:   #F8F5EE;   /* lighter card paper */
-    --brass:      #B8892B;   /* gold-brass accent */
-    --brass-lt:   #E4C878;
-    --teal:       #3E7C6B;   /* achievement / rank stamp */
-    --line:       rgba(22,40,61,0.14);
-    --line-soft:  rgba(22,40,61,0.08);
-    --ink-soft:   rgba(22,40,61,0.62);
+    --ink:        #2C2560;   /* deep warm plum-indigo — still readable/premium, much warmer than navy */
+    --ink-2:      #3E2F82;   /* secondary warm indigo */
+    --paper:      #FFF3E6;   /* warm peachy cream background */
+    --paper-lt:   #FFFBF6;   /* near-white warm card paper */
+    --brass:      #FF6F59;   /* warm coral — primary accent / CTAs (was gold-brass) */
+    --brass-lt:   #FFCB4D;   /* sunny yellow highlight (was pale gold) */
+    --teal:       #1FB8A3;   /* bright achievement teal/green, livelier than before */
+    --line:       rgba(44,37,96,0.14);
+    --line-soft:  rgba(44,37,96,0.08);
+    --ink-soft:   rgba(44,37,96,0.62);
     --radius:     3px;
     --maxw:       1160px;
   }
