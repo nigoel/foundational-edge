@@ -77,11 +77,10 @@
     max-width:var(--maxw); margin:0 auto;
   }
   .logo{
-    display:flex; align-items:baseline; gap:8px; flex-shrink:0; white-space:nowrap;
-    font-family:'Source Serif 4', serif; font-weight:700; font-size:19px;
-    text-decoration:none; color:var(--ink);
+    display:flex; align-items:center; flex-shrink:0;
+    text-decoration:none;
   }
-  .logo .dot{ color:var(--brass); }
+  .logo img{ display:block; }
   .nav-links{ display:flex; gap:32px; list-style:none; margin:0; padding:0; flex-wrap:nowrap; }
   .nav-links li{ flex-shrink:0; }
   .nav-links a{
