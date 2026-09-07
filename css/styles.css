@@ -3,9 +3,9 @@
     --ink-2:      #3E2F82;   /* secondary warm indigo */
     --paper:      #FFF3E6;   /* warm peachy cream background */
     --paper-lt:   #FFFBF6;   /* near-white warm card paper */
-    --brass:      #FF6F59;   /* warm coral — primary accent / CTAs (was gold-brass) */
+    --brass:      #3BB6A6;   /* soothing soft teal — primary accent / CTAs (was sky blue, before that coral) */
     --brass-lt:   #FFCB4D;   /* sunny yellow highlight (was pale gold) */
-    --teal:       #1FB8A3;   /* bright achievement teal/green, livelier than before */
+    --teal:       #1A7FB0;   /* deeper blue-green achievement color — kept distinct from --brass now that brass is also a teal */
     --line:       rgba(44,37,96,0.14);
     --line-soft:  rgba(44,37,96,0.08);
     --ink-soft:   rgba(44,37,96,0.62);
