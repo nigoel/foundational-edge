@@ -114,6 +114,15 @@
   }
 
   /* ---------- rank card signature element ---------- */
+  .hero-visual{ position:relative; padding-bottom:70px; }
+  .hero-kid{
+    position:absolute; bottom:0; left:10px; z-index:0;
+    filter:drop-shadow(0 14px 22px rgba(44,37,96,0.18));
+  }
+  .rankcard-scroll{ position:relative; z-index:1; }
+  @media (max-width:1080px){
+    .hero-kid{ display:none; } /* avoid overlapping the stacked layout on narrow screens */
+  }
   .rankcard{
     background:var(--paper-lt);
     border:1px solid var(--line);
@@ -277,6 +286,14 @@
 
   /* ---------- final cta ---------- */
   .cta{ background:var(--ink); color:var(--paper-lt); text-align:center; }
+  .cta-flanked{ display:flex; align-items:center; justify-content:center; gap:36px; }
+  .cta-copy{ flex:0 1 640px; }
+  .cta-kid{ flex:0 0 auto; opacity:0.95; }
+  .cta-kid-left{ transform:rotate(-4deg); }
+  .cta-kid-right{ transform:rotate(4deg); }
+  @media (max-width:820px){
+    .cta-kid{ display:none; } /* avoid clutter next to the CTA text on small screens */
+  }
   .cta h2{ color:var(--paper-lt); font-size:clamp(26px,3.4vw,38px); margin-bottom:16px; }
   .cta p{ color:rgba(248,245,238,0.82); max-width:52ch; margin:0 auto 30px; font-size:16.5px; }
   .cta-actions{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
