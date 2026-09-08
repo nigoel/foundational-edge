@@ -228,6 +228,15 @@
       dot.className = 'quiz-progress-dot';
       if(idx < activeIdx) dot.classList.add('done');
       if(idx === activeIdx) dot.classList.add('active');
+      // Free navigation: students can jump to any section at any time, in any order — no
+      // requirement to finish one before visiting another.
+      dot.setAttribute('role', 'button');
+      dot.setAttribute('tabindex', '0');
+      dot.setAttribute('aria-label', 'Go to ' + p.section);
+      dot.addEventListener('click', function(){ renderPage(idx); });
+      dot.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); renderPage(idx); }
+      });
       bar.appendChild(dot);
     });
   }
@@ -285,6 +294,12 @@
           optsDiv.querySelectorAll('.quiz-option').forEach(function(el){
             el.classList.toggle('selected', el.dataset.letter === letter);
           });
+          // Keep the "X of Y answered" note live as they go, not just on page navigation.
+          if(!isPreviewMode){
+            var noteEl = document.getElementById('quizSubmitNote');
+            if(noteEl) noteEl.textContent =
+              totalAnsweredCount() + ' of ' + questions.length + ' answered so far — jump between sections anytime using the dots above.';
+          }
         });
 
         var span = document.createElement('span');
@@ -321,7 +336,11 @@
     } else {
       nextBtn.textContent = isLastPage ? 'Submit skill check →' : 'Next section →';
       nextBtn.disabled = false;
-      document.getElementById('quizSubmitNote').textContent = 'Answer every question on this page to continue.';
+      // Informational, not a gate — students can move freely between sections in any order and
+      // come back to finish questions later, right up until they actually hit submit.
+      var answeredSoFar = totalAnsweredCount();
+      document.getElementById('quizSubmitNote').textContent =
+        answeredSoFar + ' of ' + questions.length + ' answered so far — jump between sections anytime using the dots above.';
     }
     document.getElementById('quizError').style.display = 'none';
 
@@ -329,8 +348,8 @@
     document.getElementById('quizProgressBar').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  function currentPageAnswered(){
-    return pages[currentPage].questions.every(function(q){ return answers.hasOwnProperty(q.id); });
+  function totalAnsweredCount(){
+    return questions.filter(function(q){ return answers.hasOwnProperty(q.id); }).length;
   }
 
   function renderQuiz(qs){
@@ -487,16 +506,12 @@
 
   document.getElementById('quizNextBtn').addEventListener('click', function(){
     var errorEl = document.getElementById('quizError');
-
-    if(!currentPageAnswered()){
-      errorEl.textContent = 'Please answer every question on this page before continuing.';
-      errorEl.style.display = '';
-      return;
-    }
     errorEl.style.display = 'none';
 
     var isLastPage = currentPage === pages.length - 1;
     if(!isLastPage){
+      // Free navigation: no requirement to finish this section's questions before moving on —
+      // students can come back to any section at any time before they actually submit.
       renderPage(currentPage + 1);
       return;
     }
@@ -506,6 +521,18 @@
       // bypassed), an admin preview must never actually call submit_quiz_attempt — that would
       // record a real attempt row. Preview stops here, full stop.
       return;
+    }
+
+    // Only at the actual submit step — and only as a gentle heads-up, not a hard block — check
+    // whether everything's been answered. Cancelling just returns them to the quiz to keep going;
+    // it doesn't force them anywhere.
+    var unanswered = questions.length - totalAnsweredCount();
+    if(unanswered > 0){
+      var proceed = window.confirm(
+        unanswered + ' question' + (unanswered === 1 ? ' is' : 's are') +
+        ' still unanswered. Submit anyway? (Unanswered questions will be marked incorrect.)'
+      );
+      if(!proceed) return;
     }
 
     // Last page: submit the whole quiz.

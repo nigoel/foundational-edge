@@ -559,12 +559,13 @@
   .quiz-review-q.incorrect .quiz-review-tag{ color:#c0392b; }
   .quiz-review-explain{ font-size:14px; color:var(--ink-soft); margin-top:8px; }
 
-  /* ---------- quiz progress bar (segmented, one dot per section) ---------- */
+  /* ---------- quiz progress bar (segmented, one dot per section, clickable) ---------- */
   .quiz-progress-bar{ display:flex; gap:6px; margin-bottom:12px; }
   .quiz-progress-dot{
-    flex:1; height:6px; border-radius:999px; background:var(--line);
-    transition:background .3s ease;
+    flex:1; height:10px; border-radius:999px; background:var(--line);
+    transition:background .3s ease, transform .15s ease; cursor:pointer;
   }
+  .quiz-progress-dot:hover, .quiz-progress-dot:focus-visible{ transform:scaleY(1.4); outline:none; }
   .quiz-progress-dot.done{ background:var(--teal); }
   .quiz-progress-dot.active{ background:var(--brass); }
 
