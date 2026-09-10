@@ -17,15 +17,19 @@
   .ws-header .ws-back{ font-family:'Baloo 2',sans-serif; font-weight:700; font-size:14px; color:var(--ink-soft); text-decoration:none; }
   .ws-header .ws-back:hover{ color:var(--ink); }
 
-  .ws-hero{ max-width:var(--maxw); margin:24px auto 8px; padding:0 24px; display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
-  .ws-hero img.mascot{ width:78px; height:auto; }
+  .ws-hero{ max-width:var(--maxw); margin:24px auto 12px; padding:0 24px; display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
+  .ws-hero img.mascot{ display:block; width:100px; height:auto; flex-shrink:0; }
   .ws-hero h1{ font-family:'Fredoka',sans-serif; font-size:clamp(24px,3vw,32px); margin:0; color:var(--ink); }
   .ws-grade-pill{
     display:inline-block; margin-left:10px; padding:4px 14px; border-radius:999px;
     background:var(--ink); color:var(--paper-lt); font-family:'Baloo 2',sans-serif; font-weight:700; font-size:14px;
     vertical-align:middle;
   }
-  .ws-hero p.tagline{ margin:4px 0 0; color:var(--ink-soft); font-size:15px; }
+  .ws-hero p.tagline{ margin:6px 0 0; color:var(--ink-soft); font-size:15px; }
+  @media (max-width: 560px){
+    .ws-hero{ flex-direction:column; text-align:center; gap:14px; }
+    .ws-hero img.mascot{ width:88px; }
+  }
 
   .ws-stats{ max-width:var(--maxw); margin:28px auto 0; padding:0 24px; display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
   .ws-stat-card{ background:var(--paper-lt); border-radius:16px; padding:18px 20px; box-shadow:0 6px 18px rgba(44,37,96,0.07); text-align:center; }
@@ -63,7 +67,7 @@
   .ws-card-btn.done{ background:var(--line-soft); color:var(--ink-soft); cursor:default; }
 
   .ws-empty{ background:var(--paper-lt); border-radius:16px; padding:32px; text-align:center; color:var(--ink-soft); font-size:15px; }
-  .ws-empty img{ width:64px; margin-bottom:10px; }
+  .ws-empty img{ display:block; width:96px; margin:0 auto 14px; }
 
   .ws-loading{ max-width:var(--maxw); margin:60px auto; padding:0 24px; text-align:center; color:var(--ink-soft); font-family:'Baloo 2',sans-serif; }
 
