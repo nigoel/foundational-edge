@@ -243,13 +243,51 @@
   }
   .skill-card{
     background:var(--paper-lt); border:1px solid var(--line); border-radius:20px; padding:26px 24px;
+    transition:transform .15s ease, box-shadow .15s ease;
   }
+  .skill-card:hover{ transform:translateY(-3px); box-shadow:0 10px 24px rgba(44,37,96,0.10); }
   .skill-card .mark{ color:var(--brass); font-size:16px; display:block; margin-bottom:10px; }
+  .skill-card .skill-icon{ font-size:30px; display:block; margin-bottom:12px; line-height:1; }
   .skill-card h3{ font-size:17px; margin-bottom:8px; }
   .skill-card p{ color:var(--ink-soft); font-size:14px; margin:0; line-height:1.55; }
   .skills-note{
     font-family:'Baloo 2', sans-serif; font-size:12px; color:var(--ink-soft);
     border-top:1px solid var(--line); padding-top:16px; max-width:70ch;
+  }
+
+  /* ---------- grade band toggle (K-5 reasoning vs 6-8 subject domains) ---------- */
+  .grade-toggle{
+    display:inline-flex; border:1px solid var(--line); border-radius:999px; padding:4px; margin-bottom:22px;
+    background:var(--paper-lt); flex-wrap:nowrap;
+  }
+  .grade-tab{
+    border:none; background:none; padding:10px 22px; border-radius:999px; font-family:'Baloo 2', sans-serif; font-weight:700;
+    font-size:15px; cursor:pointer; color:var(--ink-soft); white-space:nowrap; transition:background .2s ease, color .2s ease;
+  }
+  .grade-tab.active{ background:var(--ink); color:var(--paper-lt); }
+  .grade-tab:hover:not(.active){ color:var(--ink); }
+  .band-note{
+    font-size:14.5px; color:var(--ink-soft); max-width:70ch; margin:0 0 24px;
+    padding:10px 16px; background:var(--paper); border-radius:12px; border-left:3px solid var(--brass);
+  }
+
+  /* ---------- subject-domain cards (grades 6-8) ---------- */
+  .domain-grid{
+    display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:20px;
+  }
+  .domain-card{
+    background:var(--paper-lt); border:1px solid var(--line); border-radius:20px; padding:28px 26px;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .domain-card:hover{ transform:translateY(-3px); box-shadow:0 10px 24px rgba(44,37,96,0.10); }
+  .domain-card .skill-icon{ font-size:32px; display:block; margin-bottom:12px; line-height:1; }
+  .domain-card h3{ font-family:'Fredoka', sans-serif; font-size:19px; margin-bottom:8px; color:var(--ink); }
+  .domain-card p{ color:var(--ink-soft); font-size:14.5px; margin:0 0 16px; line-height:1.55; }
+  .domain-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{
+    display:inline-block; background:var(--paper); border:1px solid var(--line); border-radius:999px;
+    padding:6px 14px; font-family:'Baloo 2', sans-serif; font-size:12.5px; font-weight:700; color:var(--ink);
+    white-space:nowrap;
   }
 
   /* ---------- region toggle (shared: hero + pricing) ---------- */

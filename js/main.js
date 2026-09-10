@@ -15,6 +15,16 @@
     });
   }
 
+  // grade band toggle — "What we test" switches between K-5 (Verbal/Quantitative/Logical
+  // Reasoning, matching CogAT/NNAT-style screening) and 6-8 (subject domains like Algebra and
+  // Geometry, matching how AMC 8/MATHCOUNTS/state curricula actually organize middle-school math).
+  window.setGradeBand = function setGradeBand(band){
+    document.getElementById('tab-early').classList.toggle('active', band === 'early');
+    document.getElementById('tab-middle').classList.toggle('active', band === 'middle');
+    document.getElementById('band-early').style.display = band === 'early' ? '' : 'none';
+    document.getElementById('band-middle').style.display = band === 'middle' ? '' : 'none';
+  };
+
   // scroll reveal
   const io = new IntersectionObserver((entries) => {
     entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });

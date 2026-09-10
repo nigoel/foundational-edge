@@ -147,21 +147,65 @@
     <div class="wrap">
       <div class="section-head reveal">
         <span class="eyebrow">What we test</span>
-        <h2>Four skill areas, calibrated to your child's grade.</h2>
-        <p>Every check adapts across three difficulty tiers from Grade 3 through Grade 8 — a Foundation-level question looks nothing like an Advanced one.</p>
+        <h2>Built for exactly where your child is.</h2>
+        <p>Younger kids and middle schoolers aren't tested the same way anywhere else — so we don't test them the same way either. Pick your child's grade band to see their actual focus areas.</p>
       </div>
-      <div class="skills-grid reveal">
-        <div class="skill-card">
-          <h3>Quantitative Reasoning</h3>
-          <p>Numeracy, arithmetic, pre-algebra, geometry and number theory — building toward competition-style problem solving.</p>
+
+      <div class="grade-toggle" role="tablist" aria-label="Grade band">
+        <button type="button" class="grade-tab active" id="tab-early" onclick="setGradeBand('early')">🧸 Grades K–5</button>
+        <button type="button" class="grade-tab" id="tab-middle" onclick="setGradeBand('middle')">🎓 Grades 6–8</button>
+      </div>
+
+      <!-- GRADES K-5: Verbal / Quantitative / Logical Reasoning -->
+      <div id="band-early" class="reveal">
+        <p class="band-note">Matches the format used by CogAT, NNAT, and most school gifted-and-talented screenings — general reasoning ability, not yet locked to one curriculum.</p>
+        <div class="skills-grid">
+          <div class="skill-card">
+            <span class="skill-icon">🔢</span>
+            <h3>Quantitative Reasoning</h3>
+            <p>Numeracy, arithmetic, pre-algebra and number patterns — building toward competition-style problem solving.</p>
+          </div>
+          <div class="skill-card">
+            <span class="skill-icon">📚</span>
+            <h3>Verbal Reasoning</h3>
+            <p>Vocabulary, grammar, and reading comprehension, building to critical reading and verbal analogies at the advanced level.</p>
+          </div>
+          <div class="skill-card">
+            <span class="skill-icon">🧩</span>
+            <h3>Logical Reasoning</h3>
+            <p>Pattern recognition, classification and spatial reasoning, building to analytical deduction.</p>
+          </div>
         </div>
-        <div class="skill-card">
-          <h3>Verbal Reasoning</h3>
-          <p>Vocabulary, grammar, and reading comprehension, building to critical reading and verbal analogies at the advanced level.</p>
-        </div>
-        <div class="skill-card">
-          <h3>Logical Reasoning</h3>
-          <p>Pattern recognition, classification and spatial reasoning, building to analytical deduction.</p>
+      </div>
+
+      <!-- GRADES 6-8: subject domains -->
+      <div id="band-middle" class="reveal" style="display:none;">
+        <p class="band-note">Matches how AMC 8, MATHCOUNTS, and state curricula (SBAC, STAAR, and others) actually organize middle-school math — by subject, not general ability.</p>
+        <div class="domain-grid">
+          <div class="domain-card">
+            <span class="skill-icon">➗</span>
+            <h3>Algebra</h3>
+            <p>From solving equations to genuine problem-solving — the kind of algebra that shows up on AMC 8 and MATHCOUNTS, not just textbook drills.</p>
+            <div class="domain-chips">
+              <span class="chip">Equations &amp; Inequalities</span>
+              <span class="chip">Quadratics</span>
+              <span class="chip">Functions &amp; Graphing</span>
+              <span class="chip">Systems of Equations</span>
+              <span class="chip">Exponents &amp; Radicals</span>
+            </div>
+          </div>
+          <div class="domain-card">
+            <span class="skill-icon">📐</span>
+            <h3>Geometry</h3>
+            <p>Real proof and spatial reasoning — not just formulas, but why they're true, the same way it's tested in middle-school competitions and state exams.</p>
+            <div class="domain-chips">
+              <span class="chip">Logic &amp; Proof</span>
+              <span class="chip">Angles &amp; Parallel Lines</span>
+              <span class="chip">Triangles</span>
+              <span class="chip">Coordinate Geometry</span>
+              <span class="chip">Constructions</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
