@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Workspace — Foundational Edge</title>
+<meta name="description" content="Your assigned skill checks, practice tests, and completed work, all in one place.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=Baloo+2:wght@600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="images/logo/logo-mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .ws-shell{ background:var(--paper); min-height:100vh; padding-bottom:80px; }
+  .ws-header{ max-width:var(--maxw); margin:0 auto; padding:22px 24px 0; display:flex; justify-content:space-between; align-items:center; }
+  .ws-header a.logo img{ display:block; }
+  .ws-header .ws-back{ font-family:'Baloo 2',sans-serif; font-weight:700; font-size:14px; color:var(--ink-soft); text-decoration:none; }
+  .ws-header .ws-back:hover{ color:var(--ink); }
+
+  .ws-hero{ max-width:var(--maxw); margin:24px auto 8px; padding:0 24px; display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+  .ws-hero img.mascot{ width:78px; height:auto; }
+  .ws-hero h1{ font-family:'Fredoka',sans-serif; font-size:clamp(24px,3vw,32px); margin:0; color:var(--ink); }
+  .ws-grade-pill{
+    display:inline-block; margin-left:10px; padding:4px 14px; border-radius:999px;
+    background:var(--ink); color:var(--paper-lt); font-family:'Baloo 2',sans-serif; font-weight:700; font-size:14px;
+    vertical-align:middle;
+  }
+  .ws-hero p.tagline{ margin:4px 0 0; color:var(--ink-soft); font-size:15px; }
+
+  .ws-stats{ max-width:var(--maxw); margin:28px auto 0; padding:0 24px; display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+  .ws-stat-card{ background:var(--paper-lt); border-radius:16px; padding:18px 20px; box-shadow:0 6px 18px rgba(44,37,96,0.07); text-align:center; }
+  .ws-stat-num{ font-family:'Fredoka',sans-serif; font-size:30px; font-weight:700; color:var(--ink); }
+  .ws-stat-label{ font-size:13px; color:var(--ink-soft); font-family:'Baloo 2',sans-serif; font-weight:700; text-transform:uppercase; letter-spacing:.03em; margin-top:2px; }
+
+  .ws-section{ max-width:var(--maxw); margin:40px auto 0; padding:0 24px; }
+  .ws-section h2{ font-family:'Fredoka',sans-serif; font-size:22px; color:var(--ink); margin:0 0 16px; display:flex; align-items:center; gap:8px; }
+  .ws-section .count-badge{ background:var(--brass); color:var(--ink); font-family:'Baloo 2',sans-serif; font-size:13px; font-weight:700; padding:2px 10px; border-radius:999px; }
+
+  .ws-cards{ display:grid; grid-template-columns:repeat(auto-fill, minmax(280px,1fr)); gap:18px; }
+  .ws-card{
+    background:var(--paper-lt); border-radius:16px; padding:20px; box-shadow:0 6px 18px rgba(44,37,96,0.07);
+    display:flex; flex-direction:column; gap:10px; border-top:4px solid var(--line);
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .ws-card:hover{ transform:translateY(-2px); box-shadow:0 10px 24px rgba(44,37,96,0.12); }
+  .ws-card.type-free{ border-top-color:var(--brass); }
+  .ws-card.type-weekly{ border-top-color:var(--teal); }
+  .ws-card.type-monthly{ border-top-color:var(--brass-lt); }
+
+  .ws-card-type{ font-family:'Baloo 2',sans-serif; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); }
+  .ws-card-title{ font-family:'Fredoka',sans-serif; font-size:18px; color:var(--ink); margin:0; }
+  .ws-card-meta{ font-size:13.5px; color:var(--ink-soft); }
+  .ws-card-score{ font-family:'Fredoka',sans-serif; font-size:22px; font-weight:700; color:var(--teal); }
+  .ws-card-actions{ margin-top:auto; padding-top:6px; }
+  .ws-card-btn{
+    display:inline-block; width:100%; text-align:center; padding:11px; border-radius:999px;
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:14.5px; text-decoration:none;
+    background:var(--brass); color:var(--ink); transition:background .2s ease;
+  }
+  .ws-card-btn:hover{ background:var(--brass-lt); }
+  .ws-card-btn.secondary{ background:var(--ink); color:var(--paper-lt); }
+  .ws-card-btn.secondary:hover{ background:var(--ink-2); }
+  .ws-card-btn.done{ background:var(--line-soft); color:var(--ink-soft); cursor:default; }
+
+  .ws-empty{ background:var(--paper-lt); border-radius:16px; padding:32px; text-align:center; color:var(--ink-soft); font-size:15px; }
+  .ws-empty img{ width:64px; margin-bottom:10px; }
+
+  .ws-loading{ max-width:var(--maxw); margin:60px auto; padding:0 24px; text-align:center; color:var(--ink-soft); font-family:'Baloo 2',sans-serif; }
+
+  @media (max-width: 680px){
+    .ws-stats{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ws-shell">
+
+  <div class="ws-header">
+    <a href="index.html#top" class="logo"><img src="images/logo/logo-horizontal.svg" alt="Foundational Edge" height="34"></a>
+    <a href="index.html#top" class="ws-back">Log out</a>
+  </div>
+
+  <div id="loadingState" class="ws-loading">Loading your workspace…</div>
+
+  <div id="workspaceContent" style="display:none;">
+
+    <div class="ws-hero">
+      <img class="mascot" src="images/kids/boy-celebrating.svg" alt="">
+      <div>
+        <h1 id="welcomeHeading">Welcome back!<span class="ws-grade-pill" id="gradePill"></span></h1>
+        <p class="tagline">Here's everything ready for you, and everything you've already crushed.</p>
+      </div>
+    </div>
+
+    <div class="ws-stats">
+      <div class="ws-stat-card">
+        <div class="ws-stat-num" id="statAssigned">0</div>
+        <div class="ws-stat-label">Ready for you</div>
+      </div>
+      <div class="ws-stat-card">
+        <div class="ws-stat-num" id="statCompleted">0</div>
+        <div class="ws-stat-label">Completed</div>
+      </div>
+      <div class="ws-stat-card">
+        <div class="ws-stat-num" id="statAvgScore">—</div>
+        <div class="ws-stat-label">Average score</div>
+      </div>
+    </div>
+
+    <div class="ws-section">
+      <h2>📋 Ready for you <span class="count-badge" id="assignedCount">0</span></h2>
+      <div class="ws-cards" id="assignedCards"></div>
+      <div class="ws-empty" id="assignedEmpty" style="display:none;">
+        <img src="images/kids/girl-reading.svg" alt="">
+        <div>You're all caught up! Nothing new assigned right now — check back soon.</div>
+      </div>
+    </div>
+
+    <div class="ws-section">
+      <h2>✅ Completed <span class="count-badge" id="completedCount">0</span></h2>
+      <div class="ws-cards" id="completedCards"></div>
+      <div class="ws-empty" id="completedEmpty" style="display:none;">
+        <img src="images/kids/girl-thumbsup.svg" alt="">
+        <div>Nothing completed yet — your first sheet is waiting above!</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="errorState" style="display:none;" class="ws-loading"></div>
+
+</div>
+
+<script>
+  var SUPABASE_URL = 'https://wwmbpgtddsyettfdakbe.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3bWJwZ3RkZHN5ZXR0ZmRha2JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjA4MDksImV4cCI6MjA5OTMzNjgwOX0.owfmZtMW83G3HGW69ofbSbisRBMHgK7AX7QpSl-xRO8';
+  var RPC_GET_PROFILE = SUPABASE_URL + '/rest/v1/rpc/get_student_profile';
+  var RPC_GET_WORKSPACE = SUPABASE_URL + '/rest/v1/rpc/get_workspace_quizzes';
+
+  function supabaseRpc(url, body){
+    return fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify(body)
+    }).then(function(res){
+      if(!res.ok) throw new Error('Request failed: ' + res.status);
+      return res.json();
+    });
+  }
+
+  var TYPE_LABELS = {
+    'Free-Skill-Test': 'Free Skill Check',
+    'Weekly-Practice': 'Weekly Practice',
+    'Monthly-Competition': 'Monthly Competition'
+  };
+  var TYPE_CLASSES = {
+    'Free-Skill-Test': 'type-free',
+    'Weekly-Practice': 'type-weekly',
+    'Monthly-Competition': 'type-monthly'
+  };
+
+  var params = new URLSearchParams(window.location.search);
+  var regId = params.get('regId');
+
+  function showError(msg){
+    document.getElementById('loadingState').style.display = 'none';
+    var el = document.getElementById('errorState');
+    el.style.display = '';
+    el.textContent = msg;
+  }
+
+  function buildQuizLink(grade, quizId){
+    return 'skill-check.html?grade=' + encodeURIComponent(grade) + '&regId=' + encodeURIComponent(regId) + '&quizId=' + encodeURIComponent(quizId);
+  }
+
+  function makeCard(quiz, grade){
+    var card = document.createElement('div');
+    var typeClass = TYPE_CLASSES[quiz.quiz_type] || 'type-free';
+    card.className = 'ws-card ' + typeClass;
+
+    var typeEl = document.createElement('div');
+    typeEl.className = 'ws-card-type';
+    typeEl.textContent = TYPE_LABELS[quiz.quiz_type] || quiz.quiz_type;
+    card.appendChild(typeEl);
+
+    var titleEl = document.createElement('h3');
+    titleEl.className = 'ws-card-title';
+    titleEl.textContent = quiz.title;
+    card.appendChild(titleEl);
+
+    var started = quiz.attempts_used > 0;
+    var maxedOut = quiz.attempts_used >= quiz.max_attempts;
+
+    if(started){
+      var scoreEl = document.createElement('div');
+      scoreEl.className = 'ws-card-score';
+      var pct = quiz.latest_total ? Math.round((quiz.latest_score / quiz.latest_total) * 100) : null;
+      scoreEl.textContent = quiz.latest_score + ' / ' + quiz.latest_total + (pct !== null ? ' · ' + pct + '%' : '');
+      card.appendChild(scoreEl);
+
+      var metaEl = document.createElement('div');
+      metaEl.className = 'ws-card-meta';
+      metaEl.textContent = quiz.attempts_used + ' of ' + quiz.max_attempts + ' attempts used';
+      card.appendChild(metaEl);
+    } else {
+      var metaEl2 = document.createElement('div');
+      metaEl2.className = 'ws-card-meta';
+      metaEl2.textContent = 'Not started yet';
+      card.appendChild(metaEl2);
+    }
+
+    var actions = document.createElement('div');
+    actions.className = 'ws-card-actions';
+    var link = document.createElement('a');
+    link.href = buildQuizLink(grade, quiz.quiz_id);
+    if(!started){
+      link.className = 'ws-card-btn';
+      link.textContent = 'Start →';
+    } else if(!maxedOut){
+      link.className = 'ws-card-btn secondary';
+      link.textContent = 'Try again →';
+    } else {
+      link.className = 'ws-card-btn secondary';
+      link.textContent = 'Review →';
+    }
+    actions.appendChild(link);
+    card.appendChild(actions);
+
+    return card;
+  }
+
+  function render(profile, quizzes){
+    document.getElementById('loadingState').style.display = 'none';
+    document.getElementById('workspaceContent').style.display = '';
+    document.getElementById('welcomeHeading').childNodes[0].textContent = 'Welcome back, ' + profile.child_name + '! ';
+    document.getElementById('gradePill').textContent = 'Grade ' + profile.grade;
+
+    var assigned = quizzes.filter(function(q){ return q.attempts_used === 0; });
+    var completed = quizzes.filter(function(q){ return q.attempts_used > 0; });
+
+    document.getElementById('statAssigned').textContent = assigned.length;
+    document.getElementById('statCompleted').textContent = completed.length;
+    document.getElementById('assignedCount').textContent = assigned.length;
+    document.getElementById('completedCount').textContent = completed.length;
+
+    if(completed.length > 0){
+      var totalPct = 0, counted = 0;
+      completed.forEach(function(q){
+        if(q.latest_total){ totalPct += (q.latest_score / q.latest_total) * 100; counted++; }
+      });
+      document.getElementById('statAvgScore').textContent = counted ? Math.round(totalPct / counted) + '%' : '—';
+    }
+
+    var assignedCardsEl = document.getElementById('assignedCards');
+    var completedCardsEl = document.getElementById('completedCards');
+
+    if(assigned.length === 0){
+      document.getElementById('assignedEmpty').style.display = '';
+    } else {
+      assigned.forEach(function(q){ assignedCardsEl.appendChild(makeCard(q, profile.grade)); });
+    }
+
+    if(completed.length === 0){
+      document.getElementById('completedEmpty').style.display = '';
+    } else {
+      completed.forEach(function(q){ completedCardsEl.appendChild(makeCard(q, profile.grade)); });
+    }
+  }
+
+  if(!regId){
+    showError('We couldn\u2019t find your workspace — please log in again.');
+  } else {
+    Promise.all([
+      supabaseRpc(RPC_GET_PROFILE, { p_reg_id: regId }),
+      supabaseRpc(RPC_GET_WORKSPACE, { p_reg_id: regId })
+    ]).then(function(results){
+      var profile = results[0] && results[0][0];
+      var quizzes = results[1] || [];
+      if(!profile){
+        showError('We couldn\u2019t find that registration. Please log in again.');
+        return;
+      }
+      render(profile, quizzes);
+    }).catch(function(err){
+      console.error(err);
+      showError('Something went wrong loading your workspace. Please try again in a moment.');
+    });
+  }
+</script>
+
+</body>
+</html>
