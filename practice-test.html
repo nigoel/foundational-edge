@@ -317,15 +317,30 @@
   function showResult(record, alreadyRegistered){
     document.getElementById('newForm').style.display = 'none';
     document.getElementById('returningForm').style.display = 'none';
-    document.getElementById('resultHeading').textContent = alreadyRegistered ? 'You were already registered!' : "You're registered!";
-    document.getElementById('resultSub').textContent = alreadyRegistered
-      ? "We found an existing registration with these details and updated it — here's your skill check link again."
-      : "Here's your registration ID — save it to look this up again later.";
+
+    if(alreadyRegistered){
+      // An existing registration means this is a returning student — take them straight to
+      // their workspace instead of the plain "here's your skill check link" screen, which only
+      // ever pointed at one quiz and had no sense of what they'd already done.
+      document.getElementById('resultHeading').textContent = 'Welcome back!';
+      document.getElementById('resultSub').textContent = "We found your registration — taking you to your workspace now.";
+      document.getElementById('regIdBox').textContent = record.id;
+      var workspaceUrl = 'workspace.html?regId=' + encodeURIComponent(record.id);
+      document.getElementById('continueLink').textContent = 'Go to your workspace →';
+      document.getElementById('continueLink').setAttribute('href', workspaceUrl);
+      document.getElementById('resultPanel').style.display = 'block';
+      window.location.href = workspaceUrl;
+      return;
+    }
+
+    document.getElementById('resultHeading').textContent = "You're registered!";
+    document.getElementById('resultSub').textContent = "Here's your registration ID — save it to look this up again later.";
     document.getElementById('regIdBox').textContent = record.id;
     // Append regId so skill-check.html can pre-fill the "Registration ID" question on the
     // embedded Google Form — record.tierLink is always "skill-check.html?tier=N" so it already
     // has a query string.
     var sep = record.tierLink.indexOf('?') === -1 ? '?' : '&';
+    document.getElementById('continueLink').textContent = 'Take your free skill check →';
     document.getElementById('continueLink').setAttribute('href', record.tierLink + sep + 'regId=' + encodeURIComponent(record.id));
     document.getElementById('resultPanel').style.display = 'block';
   }
