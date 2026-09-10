@@ -1,0 +1,53 @@
+<svg viewBox="0 0 400 420" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="200" cy="220" r="170" fill="#FFF3E6"/>
+
+  <!-- legs, standing -->
+  <path d="M 175 330 L 168 385 Q 168 395 180 395 L 195 395 Q 200 395 200 385 L 200 330 Z" fill="#2C2560"/>
+  <path d="M 225 330 L 232 385 Q 232 395 220 395 L 205 395 Q 200 395 200 385 L 200 330 Z" fill="#2C2560"/>
+  <ellipse cx="180" cy="398" rx="20" ry="9" fill="#8A4A2E"/>
+  <ellipse cx="220" cy="398" rx="20" ry="9" fill="#8A4A2E"/>
+
+  <!-- dress -->
+  <path d="M 155 190 Q 155 148 200 146 Q 245 148 245 190 L 262 335 Q 200 358 138 335 Z" fill="#FFCB4D"/>
+  <path d="M 158 200 L 145 330 M 242 200 L 255 330" stroke="#F0B93D" stroke-width="3" opacity="0.5"/>
+  <path d="M 158 168 Q 200 192 242 168" fill="none" stroke="#FF6F59" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- left arm down at side -->
+  <path d="M 160 205 Q 138 240 148 275" fill="none" stroke="#C98A5E" stroke-width="21" stroke-linecap="round"/>
+
+  <!-- right arm raised high, holding trophy -->
+  <path d="M 240 205 Q 262 175 255 130" fill="none" stroke="#C98A5E" stroke-width="21" stroke-linecap="round"/>
+
+  <!-- trophy -->
+  <g transform="translate(255,105)">
+    <path d="M -16 -10 L 16 -10 L 13 14 Q 0 24 -13 14 Z" fill="#FFCB4D" stroke="#2C2560" stroke-width="2.5"/>
+    <path d="M -16 -10 Q -30 -10 -28 4 Q -26 14 -14 12" fill="none" stroke="#2C2560" stroke-width="2.5"/>
+    <path d="M 16 -10 Q 30 -10 28 4 Q 26 14 14 12" fill="none" stroke="#2C2560" stroke-width="2.5"/>
+    <rect x="-6" y="14" width="12" height="10" fill="#FFCB4D" stroke="#2C2560" stroke-width="2"/>
+    <rect x="-14" y="24" width="28" height="7" rx="2" fill="#FFCB4D" stroke="#2C2560" stroke-width="2"/>
+    <line x1="0" y1="-6" x2="0" y2="6" stroke="#2C2560" stroke-width="2" opacity="0.5"/>
+  </g>
+
+  <!-- neck + head -->
+  <rect x="185" y="128" width="30" height="26" rx="10" fill="#B87A4E"/>
+  <circle cx="200" cy="103" r="57" fill="#C98A5E"/>
+
+  <!-- hair: long with center part, flowing past shoulders -->
+  <path d="M 143 100 Q 138 165 150 210 Q 158 200 155 160 L 155 100 Z" fill="#2C2560"/>
+  <path d="M 257 100 Q 262 165 250 210 Q 242 200 245 160 L 245 100 Z" fill="#2C2560"/>
+  <path d="M 144 92 Q 142 44 200 40 Q 258 44 256 92 Q 248 58 200 55 Q 152 58 144 92 Z" fill="#2C2560"/>
+
+  <!-- eyes, joyful (closed/happy arcs since celebrating) -->
+  <path d="M 175 100 Q 182 93 189 100" fill="none" stroke="#2C2560" stroke-width="4" stroke-linecap="round"/>
+  <path d="M 211 100 Q 218 93 225 100" fill="none" stroke="#2C2560" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- big open smile -->
+  <path d="M 182 118 Q 200 134 218 118 Q 200 128 182 118 Z" fill="#8A4A2E"/>
+
+  <!-- cheeks -->
+  <circle cx="168" cy="112" r="9" fill="#FF6F59" opacity="0.3"/>
+  <circle cx="232" cy="112" r="9" fill="#FF6F59" opacity="0.3"/>
+
+  <!-- bindi -->
+  <circle cx="200" cy="88" r="3.5" fill="#FF6F59"/>
+</svg>
