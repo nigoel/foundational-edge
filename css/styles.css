@@ -113,9 +113,15 @@
   }
 
   /* ---------- rank card signature element ---------- */
-  .hero-visual{ position:relative; padding-bottom:70px; }
+  /* padding-bottom must be >= the hero-kid image height + a little breathing room, or the
+     rankcard (which sits on top, z-index:1) visually crops the top of the kid illustration
+     underneath it (z-index:0) -- this happened before when the image was 130px tall but only
+     70px of clearance was reserved. Kept as an explicit calc from the image's own height below
+     instead of two numbers that can silently drift out of sync again. */
+  .hero-visual{ position:relative; padding-bottom:200px; }
   .hero-kid{
-    position:absolute; bottom:0; left:10px; z-index:0;
+    position:absolute; bottom:0; left:-10px; z-index:0;
+    width:190px; height:190px;
     filter:drop-shadow(0 14px 22px rgba(44,37,96,0.18));
   }
   .rankcard-scroll{ position:relative; z-index:1; }
