@@ -113,9 +113,15 @@
   }
 
   /* ---------- rank card signature element ---------- */
-  .hero-visual{ position:relative; padding-bottom:70px; }
+  /* padding-bottom must be >= the hero-kid image height + a little breathing room, or the
+     rankcard (which sits on top, z-index:1) visually crops the top of the kid illustration
+     underneath it (z-index:0) -- this happened before when the image was 130px tall but only
+     70px of clearance was reserved. Kept as an explicit calc from the image's own height below
+     instead of two numbers that can silently drift out of sync again. */
+  .hero-visual{ position:relative; padding-bottom:200px; }
   .hero-kid{
-    position:absolute; bottom:0; left:10px; z-index:0;
+    position:absolute; bottom:0; left:-10px; z-index:0;
+    width:190px; height:190px;
     filter:drop-shadow(0 14px 22px rgba(44,37,96,0.18));
   }
   .rankcard-scroll{ position:relative; z-index:1; }
@@ -188,6 +194,16 @@
   .section-head .eyebrow{ margin-bottom:10px; display:block; }
   .section-head h2{ font-size:clamp(26px,3vw,36px); margin-bottom:14px; }
   .section-head p{ color:var(--ink-soft); font-size:16.5px; }
+  /* Section-head paired with a small illustration alongside it -- plain flexbox with natural
+     image sizing (no absolute positioning, no manual clearance math), same safe pattern as the
+     CTA section's flanking illustrations. Hidden below 700px to avoid crowding the heading text
+     on narrow screens, matching how hero-kid/cta-kid are already handled. */
+  .section-head-flanked{ display:flex; align-items:center; justify-content:space-between; gap:32px; margin-bottom:36px; flex-wrap:wrap; }
+  .section-head-flanked .section-head{ margin-bottom:0; flex:1 1 420px; }
+  .section-kid{ flex:0 0 auto; filter:drop-shadow(0 10px 18px rgba(44,37,96,0.14)); }
+  @media (max-width:700px){
+    .section-kid{ display:none; }
+  }
 
   /* ---------- the anxiety / problem ---------- */
   .problem{ background:var(--paper-lt); border-top:1px solid var(--line); border-bottom:1px solid var(--line); }

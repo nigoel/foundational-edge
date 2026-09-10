@@ -1,0 +1,47 @@
+<svg viewBox="0 0 400 420" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="200" cy="220" r="170" fill="#FFF3E6"/>
+
+  <!-- legs, sitting cross-legged -->
+  <ellipse cx="200" cy="335" rx="100" ry="50" fill="#1A7FB0"/>
+  <ellipse cx="152" cy="338" rx="32" ry="18" fill="#2C2560"/>
+  <ellipse cx="248" cy="338" rx="32" ry="18" fill="#2C2560"/>
+
+  <!-- torso: t-shirt -->
+  <path d="M 132 195 Q 132 150 200 148 Q 268 150 268 195 L 278 322 Q 200 346 122 322 Z" fill="#3BB6A6"/>
+  <path d="M 150 165 Q 200 188 250 165" fill="none" stroke="#2C9C8D" stroke-width="5" stroke-linecap="round" opacity="0.6"/>
+
+  <!-- left arm resting on knee -->
+  <path d="M 150 212 Q 115 245 130 280" fill="none" stroke="#C98A5E" stroke-width="22" stroke-linecap="round"/>
+
+  <!-- right arm bent up, hand resting near chin (thinking pose) -->
+  <path d="M 250 210 Q 282 205 248 145" fill="none" stroke="#C98A5E" stroke-width="22" stroke-linecap="round"/>
+  <circle cx="240" cy="132" r="17" fill="#C98A5E"/>
+
+  <!-- neck + head -->
+  <rect x="185" y="128" width="30" height="28" rx="10" fill="#B87A4E"/>
+  <circle cx="200" cy="103" r="58" fill="#C98A5E"/>
+
+  <!-- hair: short, textured top -->
+  <path d="M 142 95 Q 140 45 200 42 Q 260 45 258 95 Q 250 62 200 58 Q 150 62 142 95 Z" fill="#2C2560"/>
+  <path d="M 145 78 Q 155 55 175 50 M 225 50 Q 245 55 255 78" fill="none" stroke="#2C2560" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- eyes -->
+  <circle cx="182" cy="100" r="5" fill="#2C2560"/>
+  <circle cx="218" cy="100" r="5" fill="#2C2560"/>
+
+  <!-- eyebrows: slightly raised, thoughtful -->
+  <path d="M 172 88 Q 182 83 192 87" fill="none" stroke="#2C2560" stroke-width="3" stroke-linecap="round"/>
+  <path d="M 208 87 Q 218 83 228 88" fill="none" stroke="#2C2560" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- small closed smile -->
+  <path d="M 188 122 Q 200 130 212 122" fill="none" stroke="#8A4A2E" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- cheeks -->
+  <circle cx="168" cy="112" r="9" fill="#FF6F59" opacity="0.25"/>
+  <circle cx="232" cy="112" r="9" fill="#FF6F59" opacity="0.25"/>
+
+  <!-- small floating "idea" sparkle near the resting hand, playful thinking accent -->
+  <g transform="translate(288,90)">
+    <path d="M 0 -13 L 3.5 -3.5 L 13 0 L 3.5 3.5 L 0 13 L -3.5 3.5 L -13 0 L -3.5 -3.5 Z" fill="#FFCB4D"/>
+  </g>
+</svg>
