@@ -124,6 +124,7 @@
   var SUPABASE_URL = 'https://wwmbpgtddsyettfdakbe.supabase.co';
   var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3bWJwZ3RkZHN5ZXR0ZmRha2JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjA4MDksImV4cCI6MjA5OTMzNjgwOX0.owfmZtMW83G3HGW69ofbSbisRBMHgK7AX7QpSl-xRO8';
   var RPC_GET_ACTIVE_QUIZ = SUPABASE_URL + '/rest/v1/rpc/get_active_quiz';
+  var RPC_GET_QUIZ_BY_ID = SUPABASE_URL + '/rest/v1/rpc/get_quiz_by_id';
   var RPC_GET_QUESTIONS = SUPABASE_URL + '/rest/v1/rpc/get_quiz_questions';
   var RPC_SUBMIT_ATTEMPT = SUPABASE_URL + '/rest/v1/rpc/submit_quiz_attempt';
   var RPC_GET_ATTEMPTS = SUPABASE_URL + '/rest/v1/rpc/get_quiz_attempts';
@@ -136,6 +137,11 @@
   var regId = params.get('regId');
   var previewQuizId = params.get('previewQuizId'); // admin preview: show this exact quiz, bypassing get_active_quiz
   var isPreviewMode = !!previewQuizId; // preview lets an admin see the quiz, but never actually submit an attempt
+  // Workspace deep-link: a logged-in student's workspace links straight to one specific quiz
+  // (which may be a Weekly-Practice or Monthly-Competition quiz, not just the grade's default
+  // Free-Skill-Test). Unlike previewQuizId, this is a real attempt — it still goes through the
+  // registration check and attempt-cap logic below, exactly like the normal flow.
+  var directQuizId = params.get('quizId');
 
   function prettifyFromRegId(id){
     if(!id) return '';
@@ -588,11 +594,20 @@
     });
   }
 
+  var QUIZ_TYPE_LABELS = {
+    'Free-Skill-Test': 'Free skill check',
+    'Weekly-Practice': 'Weekly practice test',
+    'Monthly-Competition': 'Monthly competition'
+  };
+
   if(!grade){
     showNoForm();
   } else {
     var gradeLabel = 'Grade ' + grade;
-    document.getElementById('tierEyebrow').textContent = 'Free skill check · ' + gradeLabel;
+    // Eyebrow text now gets set once the actual quiz is resolved below (it may be a Weekly
+    // Practice or Monthly Competition quiz, not just the default Free Skill Check), but set a
+    // reasonable placeholder immediately so the page doesn't flash empty while that loads.
+    document.getElementById('tierEyebrow').textContent = gradeLabel;
     setupWorksheetWhatsapp(gradeLabel);
 
     if(previewQuizId){
@@ -626,13 +641,18 @@
     }
   }
 
-  // Resolves the active quiz for this grade, then checks attempt history before loading the
-  // quiz — split out from the init block above so it only runs once the regId is confirmed valid.
+  // Resolves which quiz applies, then checks attempt history before loading the quiz — split
+  // out from the init block above so it only runs once the regId is confirmed valid.
   function resolveAndLoadQuiz(){
-    // Resolve which quiz row applies to this grade first (the active, non-expired
-    // Free-Skill-Test with the latest publish_date) — everything downstream (questions,
-    // attempts, the attempt cap) is keyed off quiz_id, not the bare grade.
-    supabaseRpc(RPC_GET_ACTIVE_QUIZ, { p_grade: grade, p_quiz_type: 'Free-Skill-Test' }).then(function(rows){
+    // A workspace deep-link (quizId in the URL) names one specific quiz directly — skip the
+    // grade+type lookup entirely and fetch that exact quiz's details instead. Otherwise, fall
+    // back to the original behavior: the active, non-expired Free-Skill-Test for this grade
+    // with the latest publish_date.
+    var lookup = directQuizId
+      ? supabaseRpc(RPC_GET_QUIZ_BY_ID, { p_quiz_id: directQuizId })
+      : supabaseRpc(RPC_GET_ACTIVE_QUIZ, { p_grade: grade, p_quiz_type: 'Free-Skill-Test' });
+
+    lookup.then(function(rows){
       var quiz = rows && rows[0];
       if(!quiz){
         showNoForm();
@@ -640,9 +660,11 @@
       }
       quizId = quiz.quiz_id;
       maxAttempts = quiz.max_attempts;
+      var typeLabel = QUIZ_TYPE_LABELS[quiz.quiz_type] || 'Free skill check';
+      document.getElementById('tierEyebrow').textContent = typeLabel + ' · ' + gradeLabel;
 
-      // Check for past attempts first so a student who already took this skill check sees
-      // their history/review options instead of silently starting over.
+      // Check for past attempts first so a student who already took this quiz sees their
+      // history/review options instead of silently starting over.
       supabaseRpc(RPC_GET_ATTEMPTS, { p_reg_id: regId, p_quiz_id: quizId }).then(function(attempts){
         if(attempts && attempts.length > 0){
           renderAttemptStatus(attempts);

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log In — Foundational Edge</title>
+<meta name="description" content="Log in to see your child's assigned and completed skill checks, practice tests, and progress.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&family=Baloo+2:wght@600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="images/logo/logo-mark.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/styles.css">
+<style>
+  .login-shell{ background:var(--paper); min-height:100vh; padding:48px 0 80px; }
+  .login-wrap{ max-width:480px; margin:0 auto; padding:0 20px; }
+  .login-banner{ display:flex; justify-content:space-between; align-items:center; font-family:'Baloo 2',sans-serif; font-weight:700; font-size:13px; letter-spacing:.04em; color:var(--ink-soft); margin-bottom:18px; }
+  .login-banner a{ color:var(--ink); text-decoration:underline; }
+  .login-card{ background:var(--paper-lt); border-radius:20px; padding:36px 32px; box-shadow:0 10px 30px rgba(44,37,96,0.10); text-align:center; }
+  .login-card img.mascot{ width:96px; height:auto; margin-bottom:8px; }
+  .login-card h1{ font-family:'Fredoka',sans-serif; font-size:26px; margin:0 0 6px; color:var(--ink); }
+  .login-card p.sub{ color:var(--ink-soft); margin:0 0 24px; font-size:15px; }
+  .login-field{ text-align:left; margin-bottom:16px; }
+  .login-field label{ display:block; font-family:'Baloo 2',sans-serif; font-weight:700; font-size:13px; color:var(--ink); margin-bottom:6px; }
+  .phone-row{ display:flex; gap:8px; }
+  .phone-row select, .phone-row input{ font-family:'Nunito',sans-serif; font-size:15px; border:2px solid var(--line); border-radius:10px; padding:12px; background:var(--paper-lt); color:var(--ink); }
+  .phone-row select{ flex:0 0 118px; }
+  .phone-row input{ flex:1; min-width:0; }
+  .login-submit{ width:100%; margin-top:8px; padding:14px; border:none; border-radius:999px; background:var(--brass); color:var(--ink); font-family:'Baloo 2',sans-serif; font-weight:700; font-size:16px; cursor:pointer; transition:background .2s ease, transform .15s ease; }
+  .login-submit:hover{ background:var(--brass-lt); transform:translateY(-1px); }
+  .login-submit:disabled{ opacity:.6; cursor:default; transform:none; }
+  .login-error{ display:none; background:#FCEAEA; color:#8A2E2E; border-radius:10px; padding:12px 14px; font-size:14px; margin-top:14px; text-align:left; }
+  .login-newhere{ margin-top:22px; font-size:14px; color:var(--ink-soft); }
+  .login-newhere a{ color:var(--ink); font-weight:700; text-decoration:none; border-bottom:2px solid var(--brass); }
+
+  /* profile picker (multi-child) */
+  .profile-list{ display:none; text-align:left; margin-top:8px; }
+  .profile-card{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:var(--paper); border:2px solid var(--line); border-radius:14px;
+    padding:14px 16px; margin-bottom:12px; cursor:pointer; transition:border-color .15s ease, transform .15s ease;
+  }
+  .profile-card:hover{ border-color:var(--brass); transform:translateY(-1px); }
+  .profile-card .pname{ font-family:'Baloo 2',sans-serif; font-weight:700; color:var(--ink); font-size:16px; }
+  .profile-card .pgrade{ font-size:13px; color:var(--ink-soft); }
+  .profile-card .parrow{ font-size:20px; color:var(--brass); }
+  .profile-back{ background:none; border:none; color:var(--ink-soft); font-size:14px; text-decoration:underline; cursor:pointer; padding:0; margin-top:4px; }
+</style>
+</head>
+<body>
+
+<div class="login-shell">
+  <div class="login-wrap">
+
+    <div class="login-banner">
+      <span>WELCOME BACK</span>
+      <a href="index.html#top">← Back to Foundational Edge</a>
+    </div>
+
+    <div class="login-card">
+      <img class="mascot" src="images/kids/girl-thumbsup.svg" alt="">
+      <h1>Log in</h1>
+      <p class="sub" id="loginSub">Enter the WhatsApp number you registered with, and we'll find your workspace.</p>
+
+      <form id="phoneForm">
+        <div class="login-field">
+          <label for="whatsapp">Parent's WhatsApp number</label>
+          <div class="phone-row">
+            <select id="whatsappCode">
+              <option value="91">+91 India</option>
+              <option value="1">+1 US/Canada</option>
+              <option value="44">+44 UK</option>
+              <option value="971">+971 UAE</option>
+              <option value="65">+65 Singapore</option>
+              <option value="61">+61 Australia</option>
+              <option value="other">Other</option>
+            </select>
+            <input class="code-other" id="whatsappCodeOther" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="Code" maxlength="4" style="display:none; flex:0 0 70px;" aria-label="Custom country code (digits only, no +)">
+            <input id="whatsapp" type="tel" inputmode="numeric" pattern="[0-9]*" placeholder="98765 43210" maxlength="15" required>
+          </div>
+        </div>
+        <button type="submit" class="login-submit" id="submitBtn">Find my workspace →</button>
+      </form>
+
+      <div class="profile-list" id="profileList"></div>
+      <button class="profile-back" id="backBtn" style="display:none;">← Use a different number</button>
+
+      <div class="login-error" id="loginError"></div>
+
+      <p class="login-newhere">New here? <a href="practice-test.html">Register your child for a free skill check →</a></p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  var SUPABASE_URL = 'https://wwmbpgtddsyettfdakbe.supabase.co';
+  var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind3bWJwZ3RkZHN5ZXR0ZmRha2JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NjA4MDksImV4cCI6MjA5OTMzNjgwOX0.owfmZtMW83G3HGW69ofbSbisRBMHgK7AX7QpSl-xRO8';
+  var RPC_LOOKUP_BY_PHONE = SUPABASE_URL + '/rest/v1/rpc/lookup_registrations_by_phone';
+
+  function supabaseRpc(url, body){
+    return fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify(body)
+    }).then(function(res){
+      if(!res.ok) throw new Error('Request failed: ' + res.status);
+      return res.json();
+    });
+  }
+
+  var form = document.getElementById('phoneForm');
+  var submitBtn = document.getElementById('submitBtn');
+  var errorBox = document.getElementById('loginError');
+  var profileList = document.getElementById('profileList');
+  var backBtn = document.getElementById('backBtn');
+  var loginSub = document.getElementById('loginSub');
+
+  function showError(msg){
+    errorBox.textContent = msg;
+    errorBox.style.display = '';
+  }
+  function hideError(){
+    errorBox.style.display = 'none';
+  }
+
+  var whatsappCodeSelect = document.getElementById('whatsappCode');
+  var whatsappCodeOther = document.getElementById('whatsappCodeOther');
+  whatsappCodeSelect.addEventListener('change', function(){
+    whatsappCodeOther.style.display = whatsappCodeSelect.value === 'other' ? '' : 'none';
+  });
+
+  function buildFullPhone(){
+    var code = whatsappCodeSelect.value === 'other'
+      ? whatsappCodeOther.value.replace(/\D/g, '')
+      : whatsappCodeSelect.value;
+    var digits = document.getElementById('whatsapp').value.replace(/\D/g, '');
+    return code + digits;
+  }
+
+  function showProfilePicker(rows){
+    form.style.display = 'none';
+    loginSub.textContent = rows.length + ' ' + (rows.length === 1 ? 'child is' : 'children are') + ' registered under this number. Who\u2019s working today?';
+    profileList.innerHTML = '';
+    rows.forEach(function(r){
+      var card = document.createElement('div');
+      card.className = 'profile-card';
+      card.innerHTML = '<div><div class="pname"></div><div class="pgrade"></div></div><div class="parrow">→</div>';
+      card.querySelector('.pname').textContent = r.child_name;
+      card.querySelector('.pgrade').textContent = 'Grade ' + r.grade;
+      card.addEventListener('click', function(){
+        window.location.href = 'workspace.html?regId=' + encodeURIComponent(r.id);
+      });
+      profileList.appendChild(card);
+    });
+    profileList.style.display = '';
+    backBtn.style.display = '';
+  }
+
+  backBtn.addEventListener('click', function(){
+    form.style.display = '';
+    profileList.style.display = 'none';
+    backBtn.style.display = 'none';
+    loginSub.textContent = 'Enter the WhatsApp number you registered with, and we\u2019ll find your workspace.';
+    hideError();
+  });
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    hideError();
+    if(whatsappCodeSelect.value === 'other' && !whatsappCodeOther.value.replace(/\D/g, '')){
+      showError('Please enter your country\u2019s calling code (you selected "Other").');
+      return;
+    }
+    var phone = buildFullPhone();
+    if(!phone || phone.length < 8){
+      showError('Please enter a valid WhatsApp number.');
+      return;
+    }
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Looking...';
+
+    supabaseRpc(RPC_LOOKUP_BY_PHONE, { p_phone: phone }).then(function(rows){
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Find my workspace →';
+
+      if(!rows || rows.length === 0){
+        showError('We couldn\u2019t find a registration under that number. Double-check the number, or register below if you\u2019re new here.');
+        return;
+      }
+      if(rows.length === 1){
+        window.location.href = 'workspace.html?regId=' + encodeURIComponent(rows[0].id);
+        return;
+      }
+      showProfilePicker(rows);
+    }).catch(function(err){
+      console.error(err);
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Find my workspace →';
+      showError('Something went wrong on our end. Please try again in a moment.');
+    });
+  });
+</script>
+
+</body>
+</html>
