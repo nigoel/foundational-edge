@@ -213,9 +213,6 @@
   }
   .exam-badge:hover{ transform:translateY(-2px); box-shadow:0 6px 16px rgba(44,37,96,0.15); border-color:var(--brass); }
   .exam-badge .medal{ font-size:15px; line-height:1; }
-  .exam-strip .exam-disclaimer{
-    text-align:center; font-size:12px; color:var(--ink-soft); max-width:60ch; margin:0 auto;
-  }
   @media (max-width:640px){
     .exam-badge{ font-size:13px; padding:8px 14px; }
   }
