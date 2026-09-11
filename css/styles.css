@@ -107,6 +107,7 @@
     margin:16px 0 22px;
   }
   .hero h1 em{ font-style:normal; color:var(--brass); }
+  .band-note em{ font-style:normal; color:var(--brass); font-weight:700; }
   .hero p.lede{
     font-size:18px; color:var(--ink-soft); max-width:46ch; margin-bottom:30px;
   }
@@ -270,6 +271,7 @@
     font-size:14.5px; color:var(--ink-soft); max-width:70ch; margin:0 0 24px;
     padding:10px 16px; background:var(--paper); border-radius:12px; border-left:3px solid var(--brass);
   }
+  .band-note strong{ color:var(--brass); font-weight:800; }
 
   /* ---------- subject-domain cards (grades 6-8) ---------- */
   .domain-grid{
