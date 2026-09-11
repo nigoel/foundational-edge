@@ -192,6 +192,32 @@
   .strip .wrap{ display:flex; gap:14px; align-items:center; flex-wrap:wrap; font-size:14.5px; }
   .strip strong{ color:var(--brass-lt); font-weight:600; }
 
+  /* ---------- exam badges strip: "built for the tests your child is actually taking" ---------- */
+  .exam-strip{
+    background:linear-gradient(135deg, var(--paper) 0%, #FBE9C9 100%);
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    padding:26px 0;
+  }
+  .exam-strip .exam-label{
+    font-family:'Baloo 2', sans-serif; font-weight:700; font-size:14px; color:var(--ink);
+    text-align:center; margin-bottom:16px;
+  }
+  .exam-badges{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:12px; margin-bottom:14px;
+  }
+  .exam-badge{
+    display:inline-flex; align-items:center; gap:7px;
+    background:var(--paper-lt); border:1.5px solid var(--brass-lt); border-radius:999px;
+    padding:9px 18px; font-family:'Baloo 2', sans-serif; font-weight:700; font-size:14.5px; color:var(--ink);
+    box-shadow:0 3px 10px rgba(44,37,96,0.08);
+    transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .exam-badge:hover{ transform:translateY(-2px); box-shadow:0 6px 16px rgba(44,37,96,0.15); border-color:var(--brass); }
+  .exam-badge .medal{ font-size:15px; line-height:1; }
+  @media (max-width:640px){
+    .exam-badge{ font-size:13px; padding:8px 14px; }
+  }
+
   /* ---------- section shell ---------- */
   section{ padding:64px 0; }
   .section-head{ max-width:640px; margin-bottom:36px; }
