@@ -168,15 +168,6 @@
       <p class="gform-error" id="lookupError" style="display:none;">We couldn't find a registration matching that. Double-check the details, or register as new above.</p>
     </form>
 
-    <!-- ============ RESULT ============ -->
-    <div class="gform-thanks" id="resultPanel">
-      <h2 id="resultHeading">You're registered!</h2>
-      <p id="resultSub">Here's your registration ID — save it to look this up again later.</p>
-      <div class="regid-box" id="regIdBox">RiyaSharma@9876543210</div>
-      <p><a id="continueLink" href="#" class="btn btn-primary" style="margin-top:6px;">Go to your skill check →</a></p>
-      <p><a href="https://wa.me/919810947427?text=Hi%2C%20I%27d%20like%20to%20start%20the%20free%20Foundational%20Edge%20skill%20check" class="btn btn-ghost" style="margin-top:10px;">Message Swati on WhatsApp instead</a></p>
-    </div>
-
   </div>
 </div>
 
@@ -314,38 +305,19 @@
     document.getElementById('tab-returning').classList.toggle('active', mode === 'returning');
     document.getElementById('newForm').style.display = mode === 'new' ? '' : 'none';
     document.getElementById('returningForm').style.display = mode === 'returning' ? '' : 'none';
-    document.getElementById('resultPanel').style.display = 'none';
   }
 
   function showResult(record, alreadyRegistered){
     document.getElementById('newForm').style.display = 'none';
     document.getElementById('returningForm').style.display = 'none';
 
-    if(alreadyRegistered){
-      // An existing registration means this is a returning student — take them straight to
-      // their workspace instead of the plain "here's your skill check link" screen, which only
-      // ever pointed at one quiz and had no sense of what they'd already done.
-      document.getElementById('resultHeading').textContent = 'Welcome back!';
-      document.getElementById('resultSub').textContent = "We found your registration — taking you to your workspace now.";
-      document.getElementById('regIdBox').textContent = record.id;
-      var workspaceUrl = 'workspace.html?regId=' + encodeURIComponent(record.id);
-      document.getElementById('continueLink').textContent = 'Go to your workspace →';
-      document.getElementById('continueLink').setAttribute('href', workspaceUrl);
-      document.getElementById('resultPanel').style.display = 'block';
-      window.location.href = workspaceUrl;
-      return;
-    }
-
-    document.getElementById('resultHeading').textContent = "You're registered!";
-    document.getElementById('resultSub').textContent = "Here's your registration ID — save it to look this up again later.";
-    document.getElementById('regIdBox').textContent = record.id;
-    // Append regId so skill-check.html can pre-fill the "Registration ID" question on the
-    // embedded Google Form — record.tierLink is always "skill-check.html?tier=N" so it already
-    // has a query string.
-    var sep = record.tierLink.indexOf('?') === -1 ? '?' : '&';
-    document.getElementById('continueLink').textContent = 'Take your free skill check →';
-    document.getElementById('continueLink').setAttribute('href', record.tierLink + sep + 'regId=' + encodeURIComponent(record.id));
-    document.getElementById('resultPanel').style.display = 'block';
+    // Both paths land on the workspace now — no intermediate "here's your
+    // link" page. A brand-new registration has zero attempts and nothing
+    // assigned yet, so the Free Skill Check is simply the first thing the
+    // workspace shows them; a returning student sees whatever's actually
+    // pending. Either way, redirect immediately rather than showing a
+    // click-through confirmation screen first.
+    window.location.href = 'workspace.html?regId=' + encodeURIComponent(record.id);
   }
 
   document.getElementById('newForm').addEventListener('submit', function(e){
