@@ -27,11 +27,12 @@ attempts against the old version stay intact for review.
 
 Run, in order: `SETUP_QUESTIONS.sql`, `SETUP_QUESTIONS_STORAGE.sql`,
 `SETUP_QUESTIONS_REMOVE_SVG.sql`, `SETUP_ATTEMPTS_AND_REREGISTRATION.sql`,
-`SETUP_QUIZZES.sql`, in the Supabase SQL editor for project
+`SETUP_QUIZZES.sql`, `SETUP_LOGIN_AND_WORKSPACE.sql`,
+`SETUP_CHILD_ASSIGNMENTS.sql`, in the Supabase SQL editor for project
 `wwmbpgtddsyettfdakbe`. Together these set up the `quizzes`, `questions`,
-and `quiz_attempts` tables, the RPC functions the site uses to read/grade/
-review, a public Storage bucket for uploaded images, and seed the initial
-Grade 4 and Grade 5 free skill checks.
+`quiz_attempts`, and `assignments` tables, the RPC functions the site uses
+to read/grade/review, a public Storage bucket for uploaded images, and
+seed the initial Grade 4 and Grade 5 free skill checks.
 
 ## Adding a new quiz (ops does this ongoing)
 
@@ -58,6 +59,26 @@ Monthly-Competition quiz.
 To **retire an old quiz** without deleting its history, set `active` to
 `false` — its past attempts remain reviewable, it just won't be picked as
 the current one anymore.
+
+## Assigning a quiz to one specific child
+
+By default every active quiz for a grade is broadcast to every student in
+that grade — this is for the other case: giving **one specific child** a
+quiz individually (a Weekly-Practice or Monthly-Competition meant just for
+them, or a quiz from a different grade for a student working above/below
+level).
+
+1. Find the child's `reg_id`: Table Editor → `registrations` → search by `child_name`, copy their `id`.
+2. Find the quiz's id: Table Editor → `quizzes` → copy the `id` of the quiz you want to assign.
+3. Table Editor → `assignments` → **Insert row** → set `quiz_id` and `reg_id` to those two values.
+
+That's it — it'll appear in that child's workspace next time they log in,
+under "To take." One rule to know: **the Free Skill Check drops out of a
+child's workspace while they have a pending (not yet attempted)
+individually-assigned quiz** — it reappears once they've completed the
+assignment (or was never affected, if they'd already taken it before).
+
+
 
 ## Adding an image to a question (ops/teacher does this ongoing)
 
