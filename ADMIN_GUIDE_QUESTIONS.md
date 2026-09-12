@@ -60,23 +60,25 @@ To **retire an old quiz** without deleting its history, set `active` to
 `false` — its past attempts remain reviewable, it just won't be picked as
 the current one anymore.
 
-## Assigning a quiz to one specific child
+## Assigning a quiz to a child
 
-By default every active quiz for a grade is broadcast to every student in
-that grade — this is for the other case: giving **one specific child** a
-quiz individually (a Weekly-Practice or Monthly-Competition meant just for
-them, or a quiz from a different grade for a student working above/below
-level).
+As of `SETUP_WORKSPACE_ASSIGNMENTS_ONLY.sql`, a child's workspace shows
+**only** quizzes that have a row in `assignments` for them — there's no
+more automatic grade-wide broadcast. Every registration automatically
+gets an assignment to their grade's active Free Skill Test the moment
+they register (handled server-side in `register_child()`), so the
+workspace is never empty for a new signup — but a Weekly Practice or
+Monthly Competition quiz has to be assigned explicitly, the same way, for
+each child you want to see it.
 
 1. Find the child's `reg_id`: Table Editor → `registrations` → search by `child_name`, copy their `id`.
 2. Find the quiz's id: Table Editor → `quizzes` → copy the `id` of the quiz you want to assign.
 3. Table Editor → `assignments` → **Insert row** → set `quiz_id` and `reg_id` to those two values.
 
 That's it — it'll appear in that child's workspace next time they log in,
-under "To take." One rule to know: **the Free Skill Check drops out of a
-child's workspace while they have a pending (not yet attempted)
-individually-assigned quiz** — it reappears once they've completed the
-assignment (or was never affected, if they'd already taken it before).
+under "To take," alongside their Free Skill Test and anything else
+they've been assigned — nothing is hidden or takes priority over
+anything else anymore; every assignment just shows up as its own card.
 
 
 
