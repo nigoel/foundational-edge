@@ -307,6 +307,26 @@
     document.getElementById('returningForm').style.display = mode === 'returning' ? '' : 'none';
   }
 
+  // Best-effort display name for the logged-in nav state. New registrations
+  // carry childName directly; a returning-student lookup only gets back
+  // { id, tierLink } by design (lookup_registration deliberately returns as
+  // little as possible), so we fall back to parsing it out of the regId
+  // itself (e.g. "PriyaNair@..." -> "Priya Nair") — workspace.html corrects
+  // this to the authoritative profile.child_name moments later regardless.
+  function guessNameFromRegId(regId){
+    var namePart = (regId || '').split('@')[0];
+    return namePart.replace(/([a-z])([A-Z])/g, '$1 $2');
+  }
+
+  function rememberLogin(record){
+    try {
+      localStorage.setItem('fe_student', JSON.stringify({
+        regId: record.id,
+        childName: record.childName || guessNameFromRegId(record.id)
+      }));
+    } catch(e) { /* ignore — localStorage may be unavailable (private mode, etc.) */ }
+  }
+
   function showResult(record, alreadyRegistered){
     document.getElementById('newForm').style.display = 'none';
     document.getElementById('returningForm').style.display = 'none';
@@ -317,6 +337,7 @@
     // workspace shows them; a returning student sees whatever's actually
     // pending. Either way, redirect immediately rather than showing a
     // click-through confirmation screen first.
+    rememberLogin(record);
     window.location.href = 'workspace.html?regId=' + encodeURIComponent(record.id);
   }
 

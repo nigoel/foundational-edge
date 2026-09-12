@@ -56,6 +56,13 @@
     cursor:pointer;
     transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
   }
+
+  /* The [hidden] attribute is normally handled by the browser's own default
+     stylesheet, but that's a UA-origin rule — any author rule of any
+     specificity (like .btn{ display:inline-flex }) wins over it regardless.
+     Restated here explicitly so toggling .hidden via JS (e.g. the logged-in
+     nav state) actually hides elements that also carry a .btn-family class. */
+  [hidden]{ display:none !important; }
   .btn:focus-visible{ outline:2.5px solid var(--brass); outline-offset:2px; }
   .btn-primary{ background:var(--ink); color:var(--paper-lt); }
   .btn-primary:hover{ background:var(--ink-2); transform:translateY(-1px); box-shadow:0 6px 16px rgba(22,40,61,0.22); }

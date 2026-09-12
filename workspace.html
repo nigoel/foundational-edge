@@ -82,7 +82,7 @@
 
   <div class="ws-header">
     <a href="index.html#top" class="logo"><img src="images/logo/logo-horizontal.svg" alt="Foundational Edge" height="40"></a>
-    <a href="index.html#top" class="ws-back">Log out</a>
+    <a href="index.html#top" class="ws-back" id="workspaceLogout">Log out</a>
   </div>
 
   <div id="loadingState" class="ws-loading">Loading your workspace…</div>
@@ -170,6 +170,18 @@
 
   var params = new URLSearchParams(window.location.search);
   var regId = params.get('regId');
+  var storedStudent = null;
+  try { storedStudent = JSON.parse(localStorage.getItem('fe_student') || 'null'); } catch(e) { storedStudent = null; }
+  if(!regId && storedStudent && storedStudent.regId){
+    // No regId in the URL (e.g. a bookmarked/plain workspace.html link, or
+    // arriving via the nav's "My workspace" link on some browsers that trim
+    // the query string) — fall back to whatever was stored at login.
+    regId = storedStudent.regId;
+  }
+
+  document.getElementById('workspaceLogout').addEventListener('click', function(){
+    try { localStorage.removeItem('fe_student'); } catch(e) { /* ignore */ }
+  });
 
   function showError(msg){
     document.getElementById('loadingState').style.display = 'none';
@@ -286,9 +298,17 @@
       var profile = results[0] && results[0][0];
       var quizzes = results[1] || [];
       if(!profile){
+        try { localStorage.removeItem('fe_student'); } catch(e) { /* ignore */ }
         showError('We couldn\u2019t find that registration. Please log in again.');
         return;
       }
+      try {
+        // Refresh localStorage with the authoritative name/regId — this is
+        // what corrects the best-guess name practice-test.html may have
+        // stored for a returning-student lookup, and covers the case where
+        // this page was opened directly with just a regId in the URL.
+        localStorage.setItem('fe_student', JSON.stringify({ regId: regId, childName: profile.child_name }));
+      } catch(e) { /* ignore — localStorage may be unavailable (private mode, etc.) */ }
       render(profile, quizzes);
     }).catch(function(err){
       console.error(err);

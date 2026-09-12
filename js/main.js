@@ -4,6 +4,38 @@
   navToggle.addEventListener('click', () => nav.classList.toggle('open'));
   nav.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
 
+  // Logged-in nav state: practice-test.html and workspace.html both write
+  // { regId, childName } to localStorage['fe_student'] once a student is
+  // identified. Any page that includes this script swaps the "Login" button
+  // for the child's name (linking straight to their workspace) plus a
+  // logout option, without needing a server round trip just to know
+  // whether someone's logged in.
+  (function () {
+    let student = null;
+    try { student = JSON.parse(localStorage.getItem('fe_student') || 'null'); } catch (e) { student = null; }
+
+    if (student && student.regId) {
+      document.querySelectorAll('.js-login-link').forEach(el => { el.hidden = true; });
+      document.querySelectorAll('.js-user-link').forEach(el => { el.hidden = false; });
+      document.querySelectorAll('.js-user-name').forEach(el => {
+        el.textContent = student.childName || 'My workspace';
+        el.setAttribute('href', 'workspace.html?regId=' + encodeURIComponent(student.regId));
+      });
+    }
+
+    document.querySelectorAll('.js-logout-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        try { localStorage.removeItem('fe_student'); } catch (e) { /* ignore */ }
+        // Don't rely solely on the navigation below to reset the nav's look —
+        // if we're already on index.html, going to index.html#top is just a
+        // hash change, not a full reload, so the DOM wouldn't otherwise update.
+        document.querySelectorAll('.js-user-link').forEach(el => { el.hidden = true; });
+        document.querySelectorAll('.js-login-link').forEach(el => { el.hidden = false; });
+        window.location.href = 'index.html#top';
+      });
+    });
+  })();
+
   // region toggle — drives pricing, rank card, and "what we test" visibility everywhere on the page
   function setRegion(region){
     document.body.dataset.region = region;
