@@ -241,7 +241,7 @@
 
   function rowToRecord(row){
     if(!row) return null;
-    return { id: row.id, tierLink: row.tier_link };
+    return { id: row.id, tierLink: row.tier_link, childName: row.child_name };
   }
 
   function normalizeName(s){ return (s || '').trim().toLowerCase(); }
@@ -307,6 +307,19 @@
     document.getElementById('returningForm').style.display = mode === 'returning' ? '' : 'none';
   }
 
+  // Both flows now carry the real child_name: a new registration has it
+  // directly from the form, and lookup_registration() (see
+  // SETUP_LOOKUP_CHILD_NAME.sql) returns it for a returning-student lookup
+  // too — no more guessing a name by parsing the regId string.
+  function rememberLogin(record){
+    try {
+      localStorage.setItem('fe_student', JSON.stringify({
+        regId: record.id,
+        childName: record.childName || ''
+      }));
+    } catch(e) { /* ignore — localStorage may be unavailable (private mode, etc.) */ }
+  }
+
   function showResult(record, alreadyRegistered){
     document.getElementById('newForm').style.display = 'none';
     document.getElementById('returningForm').style.display = 'none';
@@ -317,6 +330,7 @@
     // workspace shows them; a returning student sees whatever's actually
     // pending. Either way, redirect immediately rather than showing a
     // click-through confirmation screen first.
+    rememberLogin(record);
     window.location.href = 'workspace.html?regId=' + encodeURIComponent(record.id);
   }
 

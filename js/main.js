@@ -4,6 +4,48 @@
   navToggle.addEventListener('click', () => nav.classList.toggle('open'));
   nav.querySelectorAll('.nav-links a').forEach(a => a.addEventListener('click', () => nav.classList.remove('open')));
 
+  // Logged-in nav state: practice-test.html and workspace.html both write
+  // { regId, childName } to localStorage['fe_student'] once a student is
+  // identified. Any page that includes this script swaps the "Login" button
+  // for the child's name (linking straight to their workspace) plus a
+  // logout option, without needing a server round trip just to know
+  // whether someone's logged in.
+  function syncAuthNav(){
+    let student = null;
+    try { student = JSON.parse(localStorage.getItem('fe_student') || 'null'); } catch (e) { student = null; }
+
+    const loggedIn = !!(student && student.regId);
+    document.querySelectorAll('.js-login-link').forEach(el => { el.hidden = loggedIn; });
+    document.querySelectorAll('.js-user-link').forEach(el => { el.hidden = !loggedIn; });
+    if (loggedIn) {
+      document.querySelectorAll('.js-user-name').forEach(el => {
+        el.textContent = student.childName || 'My workspace';
+        el.setAttribute('href', 'workspace.html?regId=' + encodeURIComponent(student.regId));
+      });
+    }
+  }
+  syncAuthNav();
+
+  document.querySelectorAll('.js-logout-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      try { localStorage.removeItem('fe_student'); } catch (e) { /* ignore */ }
+      // Don't rely solely on the navigation below to reset the nav's look —
+      // if we're already on index.html, going to index.html#top is just a
+      // hash change, not a full reload, so the DOM wouldn't otherwise update.
+      syncAuthNav();
+      window.location.href = 'index.html#top';
+    });
+  });
+
+  // If this page is restored from the back/forward cache (e.g. the student
+  // hit the browser's back button after logging out elsewhere), re-check
+  // localStorage rather than trusting whatever nav state was frozen into
+  // the cached page — otherwise a logged-out visitor could briefly see
+  // their old "logged in" nav flash back up.
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) syncAuthNav();
+  });
+
   // region toggle — drives pricing, rank card, and "what we test" visibility everywhere on the page
   function setRegion(region){
     document.body.dataset.region = region;

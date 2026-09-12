@@ -14,8 +14,6 @@
   .ws-shell{ background:var(--paper); min-height:100vh; padding-bottom:80px; }
   .ws-header{ max-width:var(--maxw); margin:0 auto; padding:22px 24px 0; display:flex; justify-content:space-between; align-items:center; }
   .ws-header a.logo img{ display:block; }
-  .ws-header .ws-back{ font-family:'Baloo 2',sans-serif; font-weight:700; font-size:14px; color:var(--ink-soft); text-decoration:none; }
-  .ws-header .ws-back:hover{ color:var(--ink); }
 
   .ws-hero{ max-width:var(--maxw); margin:24px auto 12px; padding:0 24px; display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
   .ws-hero img.mascot{ display:block; width:100px; height:auto; flex-shrink:0; }
@@ -82,7 +80,7 @@
 
   <div class="ws-header">
     <a href="index.html#top" class="logo"><img src="images/logo/logo-horizontal.svg" alt="Foundational Edge" height="40"></a>
-    <a href="index.html#top" class="ws-back">Log out</a>
+    <a href="index.html#top" class="btn btn-ghost" id="workspaceLogout">Log out</a>
   </div>
 
   <div id="loadingState" class="ws-loading">Loading your workspace…</div>
@@ -170,6 +168,27 @@
 
   var params = new URLSearchParams(window.location.search);
   var regId = params.get('regId');
+  var storedStudent = null;
+  try { storedStudent = JSON.parse(localStorage.getItem('fe_student') || 'null'); } catch(e) { storedStudent = null; }
+  if(!regId && storedStudent && storedStudent.regId){
+    // No regId in the URL (e.g. a bookmarked/plain workspace.html link, or
+    // arriving via the nav's "My workspace" link on some browsers that trim
+    // the query string) — fall back to whatever was stored at login.
+    regId = storedStudent.regId;
+  }
+
+  document.getElementById('workspaceLogout').addEventListener('click', function(){
+    try { localStorage.removeItem('fe_student'); } catch(e) { /* ignore */ }
+  });
+
+  // If this exact workspace page is restored from the back/forward cache
+  // (e.g. hitting the browser's back button right after logging out) it
+  // would otherwise still show this student's cached scores/assignments
+  // frozen in the DOM. Force a real reload so it re-checks localStorage and
+  // re-fetches from scratch, rather than trusting the cached snapshot.
+  window.addEventListener('pageshow', function(event){
+    if(event.persisted) window.location.reload();
+  });
 
   function showError(msg){
     document.getElementById('loadingState').style.display = 'none';
@@ -286,9 +305,17 @@
       var profile = results[0] && results[0][0];
       var quizzes = results[1] || [];
       if(!profile){
+        try { localStorage.removeItem('fe_student'); } catch(e) { /* ignore */ }
         showError('We couldn\u2019t find that registration. Please log in again.');
         return;
       }
+      try {
+        // Refresh localStorage with the authoritative name/regId — this is
+        // what corrects the best-guess name practice-test.html may have
+        // stored for a returning-student lookup, and covers the case where
+        // this page was opened directly with just a regId in the URL.
+        localStorage.setItem('fe_student', JSON.stringify({ regId: regId, childName: profile.child_name }));
+      } catch(e) { /* ignore — localStorage may be unavailable (private mode, etc.) */ }
       render(profile, quizzes);
     }).catch(function(err){
       console.error(err);
