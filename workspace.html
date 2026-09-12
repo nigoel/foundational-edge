@@ -14,8 +14,6 @@
   .ws-shell{ background:var(--paper); min-height:100vh; padding-bottom:80px; }
   .ws-header{ max-width:var(--maxw); margin:0 auto; padding:22px 24px 0; display:flex; justify-content:space-between; align-items:center; }
   .ws-header a.logo img{ display:block; }
-  .ws-header .ws-back{ font-family:'Baloo 2',sans-serif; font-weight:700; font-size:14px; color:var(--ink-soft); text-decoration:none; }
-  .ws-header .ws-back:hover{ color:var(--ink); }
 
   .ws-hero{ max-width:var(--maxw); margin:24px auto 12px; padding:0 24px; display:flex; align-items:center; gap:24px; flex-wrap:wrap; }
   .ws-hero img.mascot{ display:block; width:100px; height:auto; flex-shrink:0; }
@@ -82,7 +80,7 @@
 
   <div class="ws-header">
     <a href="index.html#top" class="logo"><img src="images/logo/logo-horizontal.svg" alt="Foundational Edge" height="40"></a>
-    <a href="index.html#top" class="ws-back" id="workspaceLogout">Log out</a>
+    <a href="index.html#top" class="btn btn-ghost" id="workspaceLogout">Log out</a>
   </div>
 
   <div id="loadingState" class="ws-loading">Loading your workspace…</div>
@@ -181,6 +179,15 @@
 
   document.getElementById('workspaceLogout').addEventListener('click', function(){
     try { localStorage.removeItem('fe_student'); } catch(e) { /* ignore */ }
+  });
+
+  // If this exact workspace page is restored from the back/forward cache
+  // (e.g. hitting the browser's back button right after logging out) it
+  // would otherwise still show this student's cached scores/assignments
+  // frozen in the DOM. Force a real reload so it re-checks localStorage and
+  // re-fetches from scratch, rather than trusting the cached snapshot.
+  window.addEventListener('pageshow', function(event){
+    if(event.persisted) window.location.reload();
   });
 
   function showError(msg){
