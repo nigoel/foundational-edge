@@ -23,10 +23,14 @@
       <li><a href="index.html#stories">Families</a></li>
       <li><a href="tutor.html">Meet the tutor</a></li>
       <li class="nav-cta-mobile"><a href="index.html#pricing" class="btn btn-ghost">See pricing</a></li>
-      <li class="nav-cta-mobile"><a href="practice-test.html" class="btn btn-primary">Login</a></li>
+      <li class="nav-cta-mobile"><a href="practice-test.html" class="btn btn-primary js-login-link">Login</a></li>
+      <li class="nav-cta-mobile js-user-link" hidden><a href="workspace.html" class="btn btn-ghost js-user-name">My workspace</a></li>
+      <li class="nav-cta-mobile js-user-link" hidden><button type="button" class="btn btn-primary js-logout-btn">Log out</button></li>
     </ul>
     <div class="nav-cta">
-      <a href="practice-test.html" class="btn btn-primary">Login</a>
+      <a href="practice-test.html" class="btn btn-primary js-login-link">Login</a>
+      <a href="workspace.html" class="btn btn-ghost js-user-link js-user-name" hidden>My workspace</a>
+      <button type="button" class="btn btn-ghost js-user-link js-logout-btn" hidden>Log out</button>
       <button class="nav-toggle" id="navToggle" aria-label="Toggle menu"><span></span><span></span><span></span></button>
     </div>
   </nav>
